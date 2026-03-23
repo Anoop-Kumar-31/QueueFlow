@@ -21,7 +21,7 @@ const Dashboard = () => {
   }, [dispatch]);
 
   return (
-    <div>
+    <div className="max-w-7xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">Overview</h1>

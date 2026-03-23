@@ -66,39 +66,39 @@ const ProjectBoard = () => {
           <div className="flex-1 w-full">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {['PENDING', 'IN_PROGRESS', 'REVIEW', 'DONE'].map(statusGroup => {
-            const groupTasks = tasks.filter(t => t.status === statusGroup);
-            return (
-              <div key={statusGroup} className="bg-slate-100 dark:bg-slate-900/50 rounded-2xl p-4 border border-slate-200 dark:border-slate-800">
-                <div className="flex items-center justify-between mb-4 px-2">
-                  <h3 className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 text-sm tracking-wide">
-                    {statusIcons[statusGroup]} {statusGroup.replace('_', ' ')}
-                  </h3>
-                  <span className="bg-white dark:bg-slate-800 text-slate-500 text-xs py-1 px-2.5 rounded-full font-bold shadow-sm">{groupTasks.length}</span>
-                </div>
+                const groupTasks = tasks.filter(t => t.status === statusGroup);
+                return (
+                  <div key={statusGroup} className="bg-slate-100 dark:bg-slate-900/50 rounded-2xl p-4 border border-slate-200 dark:border-slate-800">
+                    <div className="flex items-center justify-between mb-4 px-2">
+                      <h3 className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2 text-sm tracking-wide">
+                        {statusIcons[statusGroup]} {statusGroup.replace('_', ' ')}
+                      </h3>
+                      <span className="bg-white dark:bg-slate-800 text-slate-500 text-xs py-1 px-2.5 rounded-full font-bold shadow-sm">{groupTasks.length}</span>
+                    </div>
 
-                <div className="space-y-3">
-                  {groupTasks.map(task => (
-                    <div key={task.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary transition-all">
-                      <h4 className="font-semibold text-slate-900 dark:text-white mb-2">{task.title}</h4>
-                      <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">{task.description}</p>
-                      <div className="flex items-center justify-between text-xs font-semibold">
-                        <div className="flex items-center gap-1.5 text-slate-400 bg-slate-50 dark:bg-slate-800 px-2.5 py-1 rounded-md relative cursor-help" title={onlineUsers.includes(task.assigned_to) ? "Online" : "Offline"}>
-                          <div className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-900 ${onlineUsers.includes(task.assigned_to) ? 'bg-green-500 animate-pulse' : 'bg-slate-300 dark:bg-slate-600'}`}></div>
-                          <Users size={14} /> {task.assignee?.name?.split(' ')[0] || 'Unknown'}
+                    <div className="space-y-3">
+                      {groupTasks.map(task => (
+                        <div key={task.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary transition-all">
+                          <h4 className="font-semibold text-slate-900 dark:text-white mb-2">{task.title}</h4>
+                          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">{task.description}</p>
+                          <div className="flex items-center justify-between text-xs font-semibold">
+                            <div className="flex items-center gap-1.5 text-slate-400 bg-slate-50 dark:bg-slate-800 px-2.5 py-1 rounded-md relative cursor-help" title={onlineUsers.includes(task.assigned_to) ? "Online" : "Offline"}>
+                              <div className={`absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-slate-900 ${onlineUsers.includes(task.assigned_to) ? 'bg-green-500 animate-pulse' : 'bg-slate-300 dark:bg-slate-600'}`}></div>
+                              <Users size={14} /> {task.assignee?.name?.split(' ')[0] || 'Unknown'}
+                            </div>
+                            <div className="text-slate-400">#{task.position + 1}</div>
+                          </div>
                         </div>
-                        <div className="text-slate-400">Queue #{task.position + 1}</div>
-                      </div>
+                      ))}
+                      {groupTasks.length === 0 && (
+                        <div className="p-6 text-center text-sm font-medium text-slate-400/60 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
+                          No tasks
+                        </div>
+                      )}
                     </div>
-                  ))}
-                  {groupTasks.length === 0 && (
-                    <div className="p-6 text-center text-sm font-medium text-slate-400/60 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
-                      No tasks
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+                  </div>
+                );
+              })}
             </div>
           </div>
           <div className="w-full xl:w-[320px] shrink-0 h-[500px] xl:h-[calc(100vh-200px)] xl:sticky xl:top-6">

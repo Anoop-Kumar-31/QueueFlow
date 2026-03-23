@@ -1,16 +1,82 @@
-# React + Vite
+# 🚀 QueueFlow - Real-Time Kanban Workspace (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react&logoColor=white&style=for-the-badge)](https://react.dev/)
+[![React Router](https://img.shields.io/badge/React_Router-7.x-CA4245?logo=react-router&logoColor=white&style=for-the-badge)](https://reactrouter.com/)
+[![Vite](https://img.shields.io/badge/Vite-6.x-646CFF?logo=vite&logoColor=white&style=for-the-badge)](https://vitejs.dev/)
+[![Redux](https://img.shields.io/badge/Redux_Toolkit-2.x-764ABC?logo=redux&logoColor=white&style=for-the-badge)](https://redux-toolkit.js.org/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.x-38B2AC?logo=tailwind-css&logoColor=white&style=for-the-badge)](https://tailwindcss.com/)
+[![Socket.io](https://img.shields.io/badge/Socket.io-4.x-010101?logo=socket.io&logoColor=white&style=for-the-badge)](https://socket.io/)
+[![GitHub](https://img.shields.io/badge/GitHub-Frontend-2496ED?logo=github&logoColor=white&style=for-the-badge)](https://github.com/Anoop-Kumar-31/QueueFlow_Frontend)
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+QueueFlow is a highly interactive, real-time Kanban project management dashboard designed to flawlessly bridge the workflow gap between Project Managers and Developers. 
 
-## React Compiler
+This repository contains the **Frontend** client which binds tightly to our custom WebSocket backend, allowing seamless live updates without refreshing the browser.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 📸 Sneak Peek
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+> **Note:** Add your UI screenshots below by replacing the `URL_TO_...` paths!
+
+| Login & Registration | Project Dashboard | Live Kanban Board |
+|:---:|:---:|:---:|
+| ![Login Screenshot](URL_TO_LOGIN_SCREENSHOT) | ![Dashboard Screenshot](URL_TO_DASHBOARD_SCREENSHOT) | ![Kanban Screenshot](URL_TO_KANBAN_SCREENSHOT) |
+
+---
+
+## 👔 How It Works (The PM-Developer Flow)
+
+QueueFlow operates on a strict Role-Based Access platform:
+
+1. **Project Managers (PMs)**: 
+   * A PM creates a new isolated **Workspace / Project**.
+   * They generate a dynamic, time-bound **Invitation Code** (e.g. valid for 6 hours).
+   * The PM shares this code securely with their Developer team.
+2. **Developers**:
+   * Developers log in and click **"Join Project"**.
+   * They enter the 6-character Invitation Code and are instantly onboarded into the workspace!
+   * Developers can now see their assigned tasks and drag-and-drop them across the Kanban queues.
+3. **Real-time Sync**: As Developers move tasks, the PM's dashboard organically tracks the movements and updates the Activity Timeline instantly!
+
+---
+
+## ✨ Core Features
+
+* **Role-Based Workspaces**: Specialized views for Project Managers versus Developers.
+* **Live Task Board**: A high-performance, dynamic Kanban board supporting drag-and-drop mechanics to seamlessly shift tasks (`PENDING` -> `IN PROGRESS` -> `REVIEW` -> `DONE`).
+* **Real-time WebSockets**: Task movements, creations, and deletions are broadcasted globally. Never refresh to see what your team is working on!
+* **Active Presence System**: Stunning UI integration tracking precisely who is online right now using glowing active-user indicator pings attached to task assignees.
+* **Workspace Timeline Engine**: A sleek, vertical activity feed intercepting workflow state changes chronologically natively alerting PMs to developer speed metrics (e.g. *John moved 'Setup DB' to IN PROGRESS 5m ago*).
+
+---
+
+## 📦 Local Setup & Installation
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/Anoop-Kumar-31/QueueFlow_Frontend.git
+cd QueueFlow_Frontend
+```
+
+### 2. Install Dependencies
+```bash
+npm install
+```
+
+### 3. Environment Configuration
+Create a `.env` file in the root folder pointing directly to your local backend server:
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+### 4. Boot the Server
+```bash
+npm run dev
+```
+Navigate to `http://localhost:5173` to interact with QueueFlow!
+
+---
+
+**Anoop Kumar | Full Stack Developer**
