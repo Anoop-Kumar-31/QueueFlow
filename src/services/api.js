@@ -1,4 +1,5 @@
-const BASE_URL = import.meta.env.VITE_API_URL.endsWith("/") ? import.meta.env.VITE_API_URL.slice(0, -1) + '/api' : import.meta.env.VITE_API_URL + "/api";
+const url = import.meta.env.VITE_API_URL;
+const BASE_URL = url[url.length - 1] === "/" ? url.slice(0, -1) + '/api' : url + "/api";
 
 export const loginAPI = async (email, password) => {
   const res = await fetch(`${BASE_URL}/auth/login`, {
