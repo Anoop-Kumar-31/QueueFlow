@@ -10,75 +10,80 @@
 
 ---
 
-QueueFlow is a highly interactive, real-time Kanban project management dashboard designed to flawlessly bridge the workflow gap between Project Managers and Developers. 
+QueueFlow is a real-time project management platform built for modern development teams. It connects Project Managers, Developers, and Clients inside shared live workspaces — with drag-and-drop Kanban boards, sticky-note feedback, a workflow intelligence analytics engine, and a real-time activity feed, all syncing instantly via WebSockets without a page refresh.
 
-This repository contains the **Frontend** client which binds tightly to our custom WebSocket backend, allowing seamless live updates without refreshing the browser.
+This repository is the **React frontend** — a Vite + Redux Toolkit SPA that consumes QueueFlow's REST API and Socket.io backend.
 
 ---
 
 ## 📸 Sneak Peek
 
 ### Authentication
-#### Login 
-![Login](./screenshots/Login.png) 
-#### Sign Up 
-![Sign Up](./screenshots/SignUp.png) 
+#### Login
+<img src="./screenshots/Login.png" alt="Login" style="border: 2px solid #999999; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" />
+
+#### Sign Up
+<img src="./screenshots/SignUp.png" alt="Sign Up" style="border: 2px solid #999999; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" />
 
 ### Dashboard & Projects
-#### Overview Dashboard 
-![Overview Dashboard](./screenshots/OverviewDashboard.png) 
-#### Project Board 
-![Project Dashboard](./screenshots/ProjectDashboard.png) 
+#### Overview Dashboard
+<img src="./screenshots/OverviewDashboard.png" alt="Overview Dashboard" style="border: 2px solid #999999; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" />
+
+#### Project Board
+<img src="./screenshots/ProjectDashboard.png" alt="Project Board" style="border: 2px solid #999999; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" />
 
 ### Task Management
-#### My Tasks 
-![My Tasks](./screenshots/MyTask.png) 
-#### Task Details & Sticky Notes 
-![Task Details](./screenshots/TaskDetails.png) 
+#### My Tasks
+<img src="./screenshots/MyTask.png" alt="My Tasks" style="border: 2px solid #999999; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" />
+
+#### Task Details & Sticky Notes
+<img src="./screenshots/TaskDetails.png" alt="Task Details" style="border: 2px solid #999999; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" />
 
 ### Collaboration
-#### Join via Project Code 
-![Join Project](./screenshots/JoinWithProjectCode.png) 
-#### Generated Invite Code 
-![Code Generated](./screenshots/CodeGenerated.png) 
-#### Code Time Limit 
-![Code Time Limit](./screenshots/CodeTimeLimit.png) 
+#### Join via Project Code
+<img src="./screenshots/JoinWithProjectCode.png" alt="Join Project" style="border: 2px solid #999999; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" />
+
+#### Generated Invite Code
+<img src="./screenshots/CodeGenerated.png" alt="Code Generated" style="border: 2px solid #ffffff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" />
+
+#### Code Time Limit
+<img src="./screenshots/CodeTimeLimit.png" alt="Code Time Limit" style="border: 2px solid #ffffff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" />
 
 ### Access Management & Analytics
-#### Manage Access (PM) 
-![Manage Access](./screenshots/ManageAccess(PM).png) 
-#### Analytical Overview 
-![Analytical Overview](./screenshots/AnalyticalOverview.png) 
+#### Manage Access (PM)
+<img src="./screenshots/ManageAccess(PM).png" alt="Manage Access" style="border: 2px solid #ffffff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" />
+
+#### Analytical Overview
+<img src="./screenshots/AnalyticalOverview.png" alt="Analytical Overview" style="border: 2px solid #ffffff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);" />
 
 ---
 
-## 👔 How It Works (The PM-Developer Flow)
+## 👔 How It Works
 
-QueueFlow operates on a strict Role-Based Access platform:
+QueueFlow is built around a strict role-based flow:
 
-1. **Project Managers (PMs)**: 
-   * A PM creates a new isolated **Workspace / Project**.
-   * They generate a dynamic, time-bound **Invitation Code** (e.g. valid for 6 hours).
-   * The PM shares this code securely with their Developer team.
-2. **Developers**:
-   * Developers log in and click **"Join Project"**.
-   * They enter the 6-character Invitation Code and are instantly onboarded into the workspace!
-   * Developers can now see their assigned tasks and drag-and-drop them across the Kanban queues.
-3. **Real-time Sync**: As Developers move tasks, the PM's dashboard organically tracks the movements and updates the Activity Timeline instantly!
-4. **Clients**: Clients can seamlessly securely log in and watch tasks dynamically update around the board chronologically, without having formal drag-and-drop structural privileges natively isolating safe data viewing!
+1. **Project Manager** creates a workspace and generates a time-limited **6-character invite code** (valid for up to 6 hours).
+2. **Developers / Clients** enter the code from the Join screen and are instantly added to the workspace.
+3. **Developers** drag tasks across `PENDING → IN PROGRESS → REVIEW → DONE` — every move is broadcast in real time to all members.
+4. **Clients** get a live read-only view of progress and can leave sticky-note feedback directly on tasks.
+5. **Project Managers** monitor the **Activity Timeline**, check the **Analytics Dashboard** for bottlenecks and workload imbalances, and manage team access — all without leaving the app.
 
 ---
 
 ## ✨ Core Features
 
-* **Role-Based Workspaces**: Specialized views, constraints, and logical bindings for Project Managers, Developers, and explicitly Clients safely correctly parsing explicit views organically.
-* **Live Task Board**: A high-performance, dynamic Kanban board supporting drag-and-drop mechanics to seamlessly shift tasks (`PENDING` -> `IN PROGRESS` -> `REVIEW` -> `DONE`).
-* **Sticky-Note Feedback Ecosystem**: A gorgeous isolated feedback layer inside the `TaskDetailsModal` allowing absolutely real-time bidirectional chatting and feedback (Sticky Notes) formally tracked specifically inside Tasks! Users can beautifully edit and formally delete their feedback natively efficiently!
-* **Robust Access Management UI**: Project Managers formally retain `Manage Access` dashboards explicitly mapped smoothly securely deleting members natively, whilst standard users retain explicit graceful `Leave Team` escape hooks cleanly organically.
-* **Strict API Abstractions**: The entire React architecture cleanly routes all server mapping through explicitly structured global API hooks (`api.js`) efficiently seamlessly decoupling network handling structurally intelligently.
-* **Real-time WebSockets**: Task movements, creations, new notes, edits, and deletions are broadcasted globally natively smoothly eliminating manual refreshes completely.
-* **Active Presence System**: Stunning UI integration tracking precisely who is online right now using glowing active-user indicator pings attached to task assignees.
-* **Workspace Timeline Engine**: A sleek, vertical activity feed intercepting workflow state changes chronologically natively alerting PMs to developer speed metrics (e.g. *John moved 'Setup DB' to IN PROGRESS 5m ago*).
+| Feature | Description |
+|---|---|
+| 🎯 **Role-Based Access** | PMs create projects, Developers work tasks, Clients view and leave feedback — each role sees exactly what it needs |
+| 📋 **Live Kanban Board** | Drag-and-drop tasks across `PENDING → IN PROGRESS → REVIEW → DONE`, updates broadcast instantly to all members |
+| 🔔 **Notification Bell** | Real-time notification feed in the header — shows teammate actions with unread badge counter, filtered to exclude your own events |
+| 🔍 **Live Search** | Instant client-side search across all projects and tasks from the header bar |
+| 📊 **Workflow Intelligence** | Analytics dashboard with bottleneck detection, workload imbalance alerts, in-progress task chips, priority breakdown, completion trends, and smart insights |
+| 🗒️ **Sticky Notes** | Per-task feedback layer — post, edit, and delete notes in real time inside the Task Details modal |
+| 👥 **Access Management** | PMs get a Manage Access panel to view and remove members; Developers/Clients get a Leave Team option with confirmation |
+| 📜 **Activity Timeline** | Real-time vertical feed of all workspace events — task moves, notes, members joining, and more |
+| 🔗 **Invite Codes** | PMs generate time-limited invite codes; members join by entering the code from the dashboard |
+| ⚡ **Loading Screen** | Animated boot screen with cycling status messages and a Render cold-start notice for first visits |
 
 ---
 
