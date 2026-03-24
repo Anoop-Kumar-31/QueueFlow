@@ -87,6 +87,168 @@ QueueFlow is built around a strict role-based flow:
 
 ---
 
+## 🚀 Why QueueFlow is Different
+
+Most project management tools solve task tracking. QueueFlow solves workflow visibility and intelligence.
+
+### Comparison
+| Feature               | Existing Tools              | QueueFlow                         |
+| --------------------- | --------------------------- | --------------------------------- |
+| Real-time sync        | ❌ Polling / Refresh         | ✅ WebSockets (instant updates)    |
+| Workflow intelligence | ❌ Minimal / Paid features   | ✅ Built-in insights & analytics   |
+| Developer workflow    | ❌ Kanban boards only        | ✅ Time-ordered developer queues   |
+| Client interaction    | ⚠️ Limited or unsafe access | ✅ Structured sticky-note feedback |
+| Event system          | ❌ Hidden or partial logs    | ✅ Full event-driven architecture  |
+
+---
+
+## ⚙️ Tech Stack Decisions — Why This Stack?
+
+QueueFlow is built with a real-time, event-driven architecture. Every technology was chosen deliberately to support live collaboration, data consistency, and performance.
+
+### Quick Reference
+
+| Layer | Technology | Key Reason |
+|---|---|---|
+| Runtime | Node.js + Express | Non-blocking I/O for concurrent sockets + REST |
+| Real-time | Socket.io | Room-based broadcasting, auto-reconnect |
+| Database | PostgreSQL (Supabase) | ACID, relational integrity, complex joins |
+| ORM | Prisma | Type-safe queries, schema-first migrations |
+| Frontend | React 18 + Vite | SPA-only, fast HMR, no SSR needed |
+| State | Redux Toolkit | Predictable WebSocket-driven state mutations |
+| Styling | Tailwind CSS v4 | Utility-first, dark mode, no design lock-in |
+| Charts | Recharts | Native React, declarative, responsive containers |
+
+---
+
+### 🧠 Backend
+
+#### 🟢 Node.js + Express
+
+**Why used:**
+- Non-blocking I/O — handles WebSocket events and REST API calls simultaneously on a single thread
+- Lightweight and fast for real-time systems
+- Perfect fit for an event loop model where every task move fires both a DB write AND a socket broadcast
+
+**Why not alternatives:**
+- **Django (Python):** Synchronous by default; needs Django Channels for WebSockets — added complexity
+- **Spring Boot (Java):** Thread-per-request model → heavier memory usage; overkill here
+- **Laravel (PHP):** Not designed for persistent real-time TCP connections
+
+---
+
+#### 🟢 Socket.io
+
+**Why used:**
+- Built-in **room-based broadcasting** — `io.to(projectId).emit()` ensures only relevant clients receive events
+- Automatic reconnection and long-polling fallback built-in
+- No need to rebuild connection state management from scratch
+
+**Why not alternatives:**
+- **Raw WebSockets:** No room abstraction, manual reconnect logic, no namespace support
+- **Server-Sent Events (SSE):** One-way only (server → client); can't handle client-initiated events
+- **Polling:** Minimum 2–5s latency, wasted requests even when nothing changes
+
+---
+
+#### 🟢 PostgreSQL via Supabase
+
+**Why used:**
+- Strong **relational integrity** — Tasks belong to Projects, Members reference Users, Activities soft-link deleted Tasks (`onDelete: SetNull`)
+- ACID compliance: drag-and-drop reorders run as `prisma.$transaction()` — all or nothing
+- Efficient `JOIN` queries power the analytics engine
+
+**Why not alternatives:**
+- **MongoDB:** Weak relational modeling; cross-collection joins for analytics are messy
+- **MySQL:** Solid alternative, but PostgreSQL has better native support for complex queries, `RETURNING`, and Supabase's tooling
+
+---
+
+#### 🟢 Prisma ORM
+
+**Why used:**
+- Fully **type-safe** queries — no runtime SQL string errors
+- Schema-first: one `schema.prisma` file is the single source of truth for the entire DB structure
+- First-class Supabase support (`url` + `directUrl` for connection pooling)
+
+**Why not alternatives:**
+- **Sequelize:** Class-based, older API, weaker type inference
+- **TypeORM:** Decorator-heavy, more config, inconsistent behavior with some Postgres features
+- **Raw SQL:** No migration tooling, no type safety
+
+---
+
+### 🎨 Frontend
+
+#### 🟢 React 18 + Vite
+
+**Why used:**
+- QueueFlow is a **fully authenticated SPA** — no page needs to be server-rendered for SEO
+- Vite's dev server starts in <1s vs Webpack/CRA's 10–30s
+- React's component model pairs naturally with Redux socket reducers
+
+**Why not alternatives:**
+- **Next.js:** SSR/ISR adds complexity with zero benefit here; all routes require login
+- **Angular:** More opinionated; React's ecosystem (Redux, Recharts, Lucide) is better suited
+- **Vue:** Smaller ecosystem for the specific libraries used
+
+---
+
+#### 🟢 Redux Toolkit
+
+**Why used:**
+- Centralized store for three intersecting real-time data sources: `auth`, `projects`, `tasks`
+- Socket reducers (`socketTaskUpdated`, `socketTaskCreated`) write directly into the store — no re-fetching needed
+- `useSelector` with shallow equality prevents unnecessary re-renders
+
+**Why not alternatives:**
+- **Context API:** Re-renders every consumer on every value change — catastrophic at socket event frequency
+- **React Query / SWR:** Built for pull-based (polling/caching) patterns; conflicts with push-based socket updates (two competing sources of truth)
+- **Zustand:** Valid alternative, but Redux DevTools extensibility was preferred for debugging socket state flows
+
+---
+
+#### 🟢 Tailwind CSS v4
+
+**Why used:**
+- Utility-first means dark mode (`dark:`), responsive breakpoints, and custom color tokens all live inline — no context switching
+- JIT compilation makes the final CSS bundle tiny
+- No design lock-in; every component looks exactly as designed
+
+**Why not alternatives:**
+- **CSS Modules:** More files, slower iteration, harder to share design tokens
+- **Chakra UI / MUI:** Opinionated design system limits the premium custom look we needed
+- **styled-components:** Runtime CSS injection, worse Vite HMR performance
+
+---
+
+#### 🟢 Recharts
+
+**Why used:**
+- **Native React integration** — no imperative DOM manipulation, components compose just like any other JSX
+- `<ResponsiveContainer>` handles layout automatically
+- Declarative API: `<LineChart><Line/></LineChart>` maps directly to the data model
+
+**Why not alternatives:**
+- **Chart.js:** Imperative API requires `useEffect` and `useRef` to fight React's declarative model
+- **D3.js:** Extremely powerful but too low-level — you'd rebuild everything Recharts provides
+- **Victory:** Less active maintenance, weaker TypeScript support
+
+---
+
+### 🧠 Key Takeaway
+
+```
+Real-time push architecture  →  Node.js + Socket.io
+Relational data integrity     →  PostgreSQL + Prisma
+Predictable live state        →  Redux Toolkit
+Fast, flexible UI             →  React + Vite + Tailwind
+```
+
+Every choice supports a **live, collaborative, intelligent** workflow system — not just a CRUD app.
+
+---
+
 ## 📦 Local Setup & Installation
 
 ### 1. Clone the repository
