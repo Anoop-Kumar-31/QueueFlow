@@ -9,6 +9,7 @@ import { setOnlineUsers } from '../features/authSlice';
 import AppSidebar      from './layout/AppSidebar';
 import SearchBar       from './layout/SearchBar';
 import NotificationBell from './layout/NotificationBell';
+import ThemeToggle     from './layout/ThemeToggle';
 
 const AppLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -87,6 +88,8 @@ const AppLayout = () => {
           <SearchBar />
 
           <div className="flex items-center gap-5">
+            <ThemeToggle />
+            
             <NotificationBell
               notifications={notifications}
               unreadCount={unreadCount}

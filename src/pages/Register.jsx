@@ -45,9 +45,7 @@ const Register = () => {
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
 
         <div className="relative z-10 text-center max-w-md">
-          <div className="w-20 h-20 rounded-3xl bg-linear-to-br from-violet-600 to-indigo-600 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-violet-500/40">
-            <Activity size={40} className="text-white" />
-          </div>
+          <img src="/logo.png" alt="logo" className="w-20 h-20 mx-auto mb-4" />
           <h1 className="text-5xl font-black text-white tracking-tight mb-3">QueueFlow</h1>
           <p className="text-lg text-white/50 mb-12">Join teams shipping better software, faster.</p>
 
@@ -68,11 +66,9 @@ const Register = () => {
 
         <div className="w-full max-w-[420px] relative z-10">
           {/* Mobile logo */}
-          <div className="lg:hidden flex items-center gap-3 mb-">
-            <div className="w-9 h-9 rounded-xl bg-linear-to-br from-violet-600 to-indigo-600 flex items-center justify-center">
-              <Activity size={18} className="text-white" />
-            </div>
-            <span className="text-white font-black text-xl">QueueFlow</span>
+          <div className="lg:hidden flex items-center gap-3 mb-8 justify-left ">
+            <img src="/logo.png" alt="logo" className="w-20 h-20" />
+            <span className="text-white font-black text-4xl">QueueFlow</span>
           </div>
 
           <div className="mb-8">

@@ -30,12 +30,13 @@ const AppSidebar = ({ isOpen, onToggle }) => {
       </button>
 
       <div className={`py-6 text-2xl font-bold text-white flex items-center gap-3 overflow-hidden ${isOpen ? 'px-6' : 'px-0 justify-center'}`}>
-        <Activity size={28} className="text-primary shrink-0" />
+        {/* <Activity size={28} className="text-primary shrink-0" /> */}
+        <img src="/logo.png" alt="logo" className="w-10 h-10" />
         {isOpen && <span className="whitespace-nowrap transition-opacity duration-300">QueueFlow</span>}
       </div>
 
       <nav className="p-4 flex flex-col gap-1 flex-1 overflow-hidden">
-        <div className={`text-xs uppercase tracking-wider mb-2 mt-4 whitespace-nowrap ${isOpen ? 'px-4' : ''}`}>
+        <div className={`text-xs uppercase tracking-wider mb-2 mt-4 whitespace-nowrap px-1.5`}>
           Menu
         </div>
 
