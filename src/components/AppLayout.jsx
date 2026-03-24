@@ -95,7 +95,7 @@ const AppLayout = () => {
         </nav>
 
         <div className="p-4 overflow-hidden">
-          <button onClick={handleLogout} className={`flex items-center w-full gap-3 py-3 rounded-lg font-medium transition-all hover:bg-white/5 hover:text-white ${isSidebarOpen ? 'px-4 text-left' : 'justify-center'}`} title={!isSidebarOpen ? "Logout" : ""}>
+          <button onClick={handleLogout} className={`flex items-center w-full gap-3 py-3 rounded-lg font-medium transition-all hover:bg-red-500/5 hover:text-red-500/70 ${isSidebarOpen ? 'px-4 text-left' : 'justify-center'}`} title={!isSidebarOpen ? "Logout" : ""}>
             <LogOut size={20} className="shrink-0" />
             {isSidebarOpen && <span className="whitespace-nowrap transition-opacity duration-300">Logout</span>}
           </button>

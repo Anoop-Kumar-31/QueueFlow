@@ -9,6 +9,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import TasksBoard from './pages/TasksBoard';
 import ProjectBoard from './pages/ProjectBoard';
+import AnalyticsDashboard from './pages/AnalyticsDashboard';
 import AppLayout from './components/AppLayout';
 
 const ProtectedRoute = ({ children }) => {
@@ -56,6 +57,7 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="tasks" element={<TasksBoard />} />
           <Route path="project/:projectId" element={<ProjectBoard />} />
+          <Route path="project/:projectId/analytics" element={<AnalyticsDashboard />} />
         </Route>
       </Routes>
     </BrowserRouter>

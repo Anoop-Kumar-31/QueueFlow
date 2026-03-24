@@ -126,3 +126,7 @@ export const removeProjectMemberAPI = async (projectId, userId) => {
     method: 'DELETE'
   });
 };
+
+export const fetchProjectAnalyticsAPI = async (projectId) => {
+  return await fetchAPI(`/projects/${projectId}/analytics`);
+};
