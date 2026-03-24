@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { X, Copy, CheckCircle } from 'lucide-react';
-// import { fetchAPI } from '../services/api';
 import { generateInviteCodeAPI } from '../services/api';
 
 const GenerateInviteModal = ({ isOpen, onClose, projectId }) => {

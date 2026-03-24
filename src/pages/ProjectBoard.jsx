@@ -45,7 +45,7 @@ const ProjectBoard = () => {
     <div className="max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
         <div>
-          <Link to={`/project/${projectId}`} className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary transition-colors mb-2">
+          <Link to={`/`} className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary transition-colors mb-2">
             <ArrowLeft size={14} /> Back to Dashboard
           </Link>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{project?.name || 'Project Board'}</h1>

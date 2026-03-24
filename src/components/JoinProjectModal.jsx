@@ -24,8 +24,7 @@ const JoinProjectModal = ({ isOpen, onClose }) => {
     try {
       const res = await joinProjectAPI(code.trim().toUpperCase());
       if (res.success) {
-        // Force refresh of User's Projects immediately since they joined a workspace
-        await dispatch(fetchProjects());
+        dispatch(fetchProjects());
         onClose();
         navigate(`/project/${res.data.id}`);
       } else {

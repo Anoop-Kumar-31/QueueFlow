@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { fetchAPI } from '../services/api';
 
-// Async thunks
 export const fetchUserQueue = createAsyncThunk(
   'tasks/fetchUserQueue',
   async (userId, { rejectWithValue }) => {
@@ -83,7 +82,7 @@ const tasksSlice = createSlice({
       if (task) task.status = action.payload.status;
     },
     socketTaskCreated: (state, action) => {
-      // Prevent duplicates safely since PMs and user events fire asynchronously
+      // Prevent duplicates safely since Pro. Manager and user events fire asynchronously
       if (!state.items.find(t => t.id === action.payload.id)) {
         state.items.push(action.payload);
       }
@@ -98,7 +97,7 @@ const tasksSlice = createSlice({
       state.items = state.items.filter(t => t.id !== action.payload);
     },
     socketQueueReordered: (state, action) => {
-       // Only process non-local updates silently in background to avoid dropping ongoing mouse states
+       // Only process non-local updates in background
        action.payload.forEach(taskUpdate => {
          const task = state.items.find(t => t.id === taskUpdate.id);
          if (task) task.position = taskUpdate.position;

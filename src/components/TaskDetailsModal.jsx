@@ -46,7 +46,7 @@ const TaskDetailsModal = ({ isOpen, onClose, task, projectId }) => {
         onClick={onClose}
       />
       <div className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
-        {/* Header */}
+
         <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800 shrink-0">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">{task.title}</h2>
@@ -62,10 +62,8 @@ const TaskDetailsModal = ({ isOpen, onClose, task, projectId }) => {
           </button>
         </div>
 
-        {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
 
-          {/* Details Section */}
           <div className="space-y-4">
             {task.description && (
               <div>
@@ -92,7 +90,6 @@ const TaskDetailsModal = ({ isOpen, onClose, task, projectId }) => {
             </div>
           </div>
 
-          {/* Sticky Notes Feed */}
           <div>
             <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-200 dark:border-slate-800 pb-2">
               Sticky Notes ({task.sticky_notes?.length || 0})
@@ -149,7 +146,6 @@ const TaskDetailsModal = ({ isOpen, onClose, task, projectId }) => {
 
         </div>
 
-        {/* Input Footer */}
         <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 rounded-b-2xl shrink-0">
           <form onSubmit={handleAddNote} className="flex flex-col gap-3">
             <textarea

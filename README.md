@@ -18,11 +18,37 @@ This repository contains the **Frontend** client which binds tightly to our cust
 
 ## 📸 Sneak Peek
 
-> **Note:** Add your UI screenshots below by replacing the `URL_TO_...` paths!
+### Authentication
+#### Login 
+![Login](./screenshots/Login.png) 
+#### Sign Up 
+![Sign Up](./screenshots/SignUp.png) 
 
-| Login & Registration | Project Dashboard | Live Kanban Board |
-|:---:|:---:|:---:|
-| ![Login Screenshot](URL_TO_LOGIN_SCREENSHOT) | ![Dashboard Screenshot](URL_TO_DASHBOARD_SCREENSHOT) | ![Kanban Screenshot](URL_TO_KANBAN_SCREENSHOT) |
+### Dashboard & Projects
+#### Overview Dashboard 
+![Overview Dashboard](./screenshots/OverviewDashboard.png) 
+#### Project Board 
+![Project Dashboard](./screenshots/ProjectDashboard.png) 
+
+### Task Management
+#### My Tasks 
+![My Tasks](./screenshots/MyTask.png) 
+#### Task Details & Sticky Notes 
+![Task Details](./screenshots/TaskDetails.png) 
+
+### Collaboration
+#### Join via Project Code 
+![Join Project](./screenshots/JoinWithProjectCode.png) 
+#### Generated Invite Code 
+![Code Generated](./screenshots/CodeGenerated.png) 
+#### Code Time Limit 
+![Code Time Limit](./screenshots/CodeTimeLimit.png) 
+
+### Access Management & Analytics
+#### Manage Access (PM) 
+![Manage Access](./screenshots/ManageAccess(PM).png) 
+#### Analytical Overview 
+![Analytical Overview](./screenshots/AnalyticalOverview.png) 
 
 ---
 

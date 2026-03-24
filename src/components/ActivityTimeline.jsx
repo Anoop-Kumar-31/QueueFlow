@@ -36,7 +36,6 @@ const ActivityTimeline = ({ projectId }) => {
   useEffect(() => {
     if (!projectId) return;
 
-    // Initial fetch logs strictly isolated to active Workspace
     fetchProjectActivitiesAPI(projectId)
       .then(res => {
         if (res.success) setActivities(res.data);
@@ -47,7 +46,6 @@ const ActivityTimeline = ({ projectId }) => {
         setLoading(false);
       });
 
-    // Sub to new generic Activity dispatch rules
     const socket = initSocket();
     const handleNewActivity = (activity) => {
       setActivities(prev => [activity, ...prev].slice(0, 50));
@@ -78,12 +76,11 @@ const ActivityTimeline = ({ projectId }) => {
           <div className="relative before:absolute before:inset-y-0 before:left-3.5 before:w-px before:bg-slate-200 dark:before:bg-slate-800">
             {activities.map((activity, idx) => (
               <div key={activity.id} className="relative flex gap-4 mb-5 last:mb-0 group">
-                {/* Icon Circle */}
+                
                 <div className="relative z-10 w-7 h-7 rounded-full bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 shadow-sm group-hover:border-primary/50 transition-colors p-0">
                   {getActionIcon(activity.action)}
                 </div>
 
-                {/* Content */}
                 <div className="flex-1 pt-1 pb-1">
                   <div className="flex items-baseline justify-between gap-2 mb-1">
                     <span className="font-semibold text-sm text-slate-900 dark:text-white">

@@ -5,7 +5,7 @@ import { fetchProjects } from '../features/projectSlice';
 import CreateProjectModal from '../components/CreateProjectModal';
 import JoinProjectModal from '../components/JoinProjectModal';
 import { useNavigate } from 'react-router-dom';
-import Loading from '../components/Loading';
+// import Loading from '../components/Loading';
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -47,7 +47,9 @@ const Dashboard = () => {
       </div>
 
       {loading && projects.length === 0 ? (
-        <Loading message="Loading your workspace" textSize="text-md" iconSize="w-2 h-2" iconColor="bg-primary" />
+        <div className="flex items-center justify-center">
+          <div className="text-primary"> Loading your workspace...</div>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {projects.length === 0 ? (

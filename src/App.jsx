@@ -31,11 +31,10 @@ function App() {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      // If we have a token but no user data (e.g. from a page refresh)
       if (token && !user) {
-        await dispatch(fetchUser());
+        dispatch(fetchUser());
       }
-      await setTimeout(() => setIsInitializing(false), 2000);
+      setIsInitializing(false)
     };
 
     initializeAuth();

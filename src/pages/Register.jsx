@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserPlus, Activity, Eye, EyeOff } from 'lucide-react';
+import { UserPlus, Activity, Eye, EyeOff, ShieldCheck, GitBranch, Clock } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser, clearError } from '../features/authSlice';
+
+const FEATURES = [
+  { icon: <ShieldCheck size={16} className="text-violet-400" />, text: 'Secure JWT-authenticated sessions' },
+  { icon: <GitBranch size={16} className="text-indigo-400" />, text: 'Project workspaces with invite codes' },
+  { icon: <Clock size={16} className="text-violet-400" />, text: 'Activity timeline & audit logs' },
+];
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -23,58 +29,93 @@ const Register = () => {
     }
   };
 
+  const ROLE_OPTIONS = [
+    { value: 'PM', label: 'Project Manager', desc: 'Create & manage projects' },
+    { value: 'DEVELOPER', label: 'Developer', desc: 'Receive & complete tasks' },
+    { value: 'CLIENT', label: 'Client', desc: 'View progress & leave feedback' },
+  ];
+
   return (
-    <div className="flex min-h-screen font-sans">
-      <div className="hidden lg:flex flex-1 flex-col items-center justify-center bg-gradient-to-br from-[#111113] to-[#2a2a35] text-white p-16 relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-[#6F4EFF] rounded-full blur-[100px] opacity-15"></div>
-        <div className="relative z-10 text-center">
-          <Activity size={64} className="text-[#6F4EFF] mx-auto mb-6" />
-          <h1 className="text-5xl font-bold mb-4">QueueFlow</h1>
-          <p className="text-xl text-white/70 max-w-md mx-auto">
-            Join thousands of teams shipping better software, faster.
-          </p>
+    <div className="flex min-h-screen font-sans bg-[#09090b]">
+
+      {/* ─── Left Panel ─── */}
+      <div className="hidden lg:flex flex-1 flex-col items-center justify-center relative overflow-hidden p-16">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-violet-600/15 blur-[120px] pointer-events-none" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none" />
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)', backgroundSize: '40px 40px' }} />
+
+        <div className="relative z-10 text-center max-w-md">
+          <div className="w-20 h-20 rounded-3xl bg-linear-to-br from-violet-600 to-indigo-600 flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-violet-500/40">
+            <Activity size={40} className="text-white" />
+          </div>
+          <h1 className="text-5xl font-black text-white tracking-tight mb-3">QueueFlow</h1>
+          <p className="text-lg text-white/50 mb-12">Join teams shipping better software, faster.</p>
+
+          <div className="space-y-4 text-left">
+            {FEATURES.map((f, i) => (
+              <div key={i} className="flex items-center gap-3 bg-white/5 border border-white/8 rounded-xl px-4 py-3">
+                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0">{f.icon}</div>
+                <p className="text-sm text-white/70">{f.text}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-8 bg-slate-50 dark:bg-slate-950">
-        <div className="w-full max-w-[440px] animate-fade-in">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Create Account</h2>
-            <p className="text-slate-500 dark:text-slate-400">Start managing your projects for free.</p>
+      {/* ─── Right Panel ─── */}
+      <div className="flex-1 flex items-center justify-center p-8 relative">
+        <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[300px] h-[600px] bg-violet-600/5 blur-[100px] pointer-events-none" />
+
+        <div className="w-full max-w-[420px] relative z-10">
+          {/* Mobile logo */}
+          <div className="lg:hidden flex items-center gap-3 mb-">
+            <div className="w-9 h-9 rounded-xl bg-linear-to-br from-violet-600 to-indigo-600 flex items-center justify-center">
+              <Activity size={18} className="text-white" />
+            </div>
+            <span className="text-white font-black text-xl">QueueFlow</span>
           </div>
 
-          {error && <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500">{error}</div>}
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="mb-8">
+            <h2 className="text-3xl font-black text-white mb-2">Create account</h2>
+            <p className="text-slate-400">Start managing your projects for free today.</p>
+          </div>
+
+          {error && (
+            <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Full Name</label>
-              <input 
-                type="text" 
-                className="w-full px-4 py-3 rounded-lg border border-slate-200 bg-transparent text-slate-900 dark:border-slate-800 dark:text-white outline-none focus:border-[#6F4EFF] focus:ring-3 focus:ring-[#6F4EFF]/15 transition-all" 
-                placeholder="John Doe" 
+              <label className="block text-sm font-semibold text-slate-300 mb-2">Full Name</label>
+              <input
+                type="text"
+                className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-slate-600 outline-none focus:border-violet-500 focus:ring-3 focus:ring-violet-500/15 transition-all"
+                placeholder="John Doe"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
               />
             </div>
+
             <div>
-              <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Work Email</label>
-              <input 
-                type="email" 
-                className="w-full px-4 py-3 rounded-lg border border-slate-200 bg-transparent text-slate-900 dark:border-slate-800 dark:text-white outline-none focus:border-[#6F4EFF] focus:ring-3 focus:ring-[#6F4EFF]/15 transition-all" 
-                placeholder="you@company.com" 
+              <label className="block text-sm font-semibold text-slate-300 mb-2">Work Email</label>
+              <input
+                type="email"
+                className="w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-slate-600 outline-none focus:border-violet-500 focus:ring-3 focus:ring-violet-500/15 transition-all"
+                placeholder="you@company.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
+
             <div>
-              <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Password</label>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">Password</label>
               <div className="relative">
-                <input 
-                  type={showPassword ? 'text' : 'password'} 
-                  className="w-full px-4 py-3 pr-12 rounded-lg border border-slate-200 bg-transparent text-slate-900 dark:border-slate-800 dark:text-white outline-none focus:border-[#6F4EFF] focus:ring-3 focus:ring-[#6F4EFF]/15 transition-all" 
-                  placeholder="••••••••" 
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  className="w-full px-4 py-3 pr-12 rounded-xl border border-white/10 bg-white/5 text-white placeholder:text-slate-600 outline-none focus:border-violet-500 focus:ring-3 focus:ring-violet-500/15 transition-all"
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -82,33 +123,52 @@ const Register = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
+
+            {/* Role Selector — card style */}
             <div>
-              <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Account Role</label>
-              <select 
-                className="w-full px-4 py-3 rounded-lg border border-slate-200 bg-slate-50 text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-white outline-none focus:border-[#6F4EFF] focus:ring-3 focus:ring-[#6F4EFF]/15 transition-all appearance-none" 
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-              >
-                <option value="PM" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">Project Manager (Can create projects)</option>
-                <option value="DEVELOPER" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">Developer (Assign tasks to me)</option>
-                <option value="CLIENT" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">Client (View-only and feedback)</option>
-              </select>
+              <label className="block text-sm font-semibold text-slate-300 mb-3">Account Role</label>
+              <div className="grid grid-cols-1 gap-1">
+                {ROLE_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setRole(opt.value)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all ${role === opt.value
+                      ? 'border-violet-500 bg-violet-500/10 text-white'
+                      : 'border-white/10 bg-white/3 text-slate-400 hover:border-white/20 hover:text-slate-300'
+                      }`}
+                  >
+                    <div className={`w-3.5 h-3.5 rounded-full border-2 shrink-0 ${role === opt.value ? 'border-violet-500 bg-violet-500' : 'border-slate-600'}`} />
+                    <div>
+                      <p className="text-xs font-semibold">{opt.label}</p>
+                      <p className="text-xs text-slate-500">{opt.desc}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
-            
-            <button type="submit" className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 mt-4 rounded-lg font-semibold bg-[#6F4EFF] hover:bg-[#5B3AE8] text-white hover:-translate-y-[1px] shadow-lg shadow-[#6F4EFF]/30 transition-all" disabled={loading}>
-              {loading ? 'Creating...' : 'Create Account'} <UserPlus size={18} />
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold bg-linear-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-xl shadow-violet-500/25 transition-all hover:-translate-y-px disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+            >
+              {loading ? 'Creating...' : <><UserPlus size={18} /> Create Account</>}
             </button>
           </form>
-          
-          <div className="text-center mt-6 text-slate-500 dark:text-slate-400">
-            Already have an account? <Link to="/login" className="text-[#6F4EFF] font-semibold hover:underline">Sign in</Link>
-          </div>
+
+          <p className="text-center mt-4 text-slate-500 text-sm">
+            Already have an account?{' '}
+            <Link to="/login" className="text-violet-400 font-semibold hover:text-violet-300 transition-colors">
+              Sign in
+            </Link>
+          </p>
         </div>
       </div>
     </div>
