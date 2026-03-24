@@ -39,14 +39,18 @@ QueueFlow operates on a strict Role-Based Access platform:
    * They enter the 6-character Invitation Code and are instantly onboarded into the workspace!
    * Developers can now see their assigned tasks and drag-and-drop them across the Kanban queues.
 3. **Real-time Sync**: As Developers move tasks, the PM's dashboard organically tracks the movements and updates the Activity Timeline instantly!
+4. **Clients**: Clients can seamlessly securely log in and watch tasks dynamically update around the board chronologically, without having formal drag-and-drop structural privileges natively isolating safe data viewing!
 
 ---
 
 ## ✨ Core Features
 
-* **Role-Based Workspaces**: Specialized views for Project Managers versus Developers.
+* **Role-Based Workspaces**: Specialized views, constraints, and logical bindings for Project Managers, Developers, and explicitly Clients safely correctly parsing explicit views organically.
 * **Live Task Board**: A high-performance, dynamic Kanban board supporting drag-and-drop mechanics to seamlessly shift tasks (`PENDING` -> `IN PROGRESS` -> `REVIEW` -> `DONE`).
-* **Real-time WebSockets**: Task movements, creations, and deletions are broadcasted globally. Never refresh to see what your team is working on!
+* **Sticky-Note Feedback Ecosystem**: A gorgeous isolated feedback layer inside the `TaskDetailsModal` allowing absolutely real-time bidirectional chatting and feedback (Sticky Notes) formally tracked specifically inside Tasks! Users can beautifully edit and formally delete their feedback natively efficiently!
+* **Robust Access Management UI**: Project Managers formally retain `Manage Access` dashboards explicitly mapped smoothly securely deleting members natively, whilst standard users retain explicit graceful `Leave Team` escape hooks cleanly organically.
+* **Strict API Abstractions**: The entire React architecture cleanly routes all server mapping through explicitly structured global API hooks (`api.js`) efficiently seamlessly decoupling network handling structurally intelligently.
+* **Real-time WebSockets**: Task movements, creations, new notes, edits, and deletions are broadcasted globally natively smoothly eliminating manual refreshes completely.
 * **Active Presence System**: Stunning UI integration tracking precisely who is online right now using glowing active-user indicator pings attached to task assignees.
 * **Workspace Timeline Engine**: A sleek, vertical activity feed intercepting workflow state changes chronologically natively alerting PMs to developer speed metrics (e.g. *John moved 'Setup DB' to IN PROGRESS 5m ago*).
 
