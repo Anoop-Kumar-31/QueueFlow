@@ -85,3 +85,44 @@ export const generateInviteCodeAPI = async (projectId, expiresInHours) => {
     body: JSON.stringify({ expiresInHours: parseFloat(expiresInHours) })
   });
 };
+
+export const createStickyNoteAPI = async (taskId, text) => {
+  return await fetchAPI(`/tasks/${taskId}/notes`, {
+    method: 'POST',
+    body: JSON.stringify({ text })
+  });
+};
+
+export const updateStickyNoteAPI = async (noteId, text) => {
+  return await fetchAPI(`/tasks/notes/${noteId}`, {
+    method: 'PUT',
+    body: JSON.stringify({ text })
+  });
+};
+
+export const deleteStickyNoteAPI = async (noteId) => {
+  return await fetchAPI(`/tasks/notes/${noteId}`, {
+    method: 'DELETE'
+  });
+};
+
+export const joinProjectAPI = async (code) => {
+  return await fetchAPI(`/projects/join`, {
+    method: 'POST',
+    body: JSON.stringify({ code })
+  });
+};
+
+export const fetchProjectMembersAPI = async (projectId) => {
+  return await fetchAPI(`/projects/${projectId}/members`);
+};
+
+export const fetchProjectActivitiesAPI = async (projectId) => {
+  return await fetchAPI(`/projects/${projectId}/activities`);
+};
+
+export const removeProjectMemberAPI = async (projectId, userId) => {
+  return await fetchAPI(`/projects/${projectId}/members/${userId}`, {
+    method: 'DELETE'
+  });
+};

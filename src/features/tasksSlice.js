@@ -104,11 +104,38 @@ const tasksSlice = createSlice({
          if (task) task.position = taskUpdate.position;
        });
        state.items.sort((a,b) => a.position - b.position);
+    },
+    socketNewStickyNote: (state, action) => {
+      const note = action.payload;
+      const idx = state.items.findIndex(t => t.id === note.task_id);
+      if (idx !== -1) {
+        if (!state.items[idx].sticky_notes) {
+          state.items[idx].sticky_notes = [];
+        }
+        state.items[idx].sticky_notes.push(note);
+      }
+    },
+    socketNoteUpdated: (state, action) => {
+      const updatedNote = action.payload;
+      const taskIndex = state.items.findIndex(t => t.id === updatedNote.task_id);
+      if (taskIndex !== -1 && state.items[taskIndex].sticky_notes) {
+        const noteIndex = state.items[taskIndex].sticky_notes.findIndex(n => n.id === updatedNote.id);
+        if (noteIndex !== -1) {
+          state.items[taskIndex].sticky_notes[noteIndex] = updatedNote;
+        }
+      }
+    },
+    socketNoteDeleted: (state, action) => {
+      const { noteId, taskId } = action.payload;
+      const taskIndex = state.items.findIndex(t => t.id === taskId);
+      if (taskIndex !== -1 && state.items[taskIndex].sticky_notes) {
+        state.items[taskIndex].sticky_notes = state.items[taskIndex].sticky_notes.filter(n => n.id !== noteId);
+      }
     }
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchUserQueue.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(fetchUserQueue.pending, (state) => { state.loading = true; state.error = null; state.items = []; })
       .addCase(fetchUserQueue.fulfilled, (state, action) => {
         state.loading = false;
         state.items = action.payload;
@@ -117,8 +144,14 @@ const tasksSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(fetchProjectTasks.pending, (state) => { state.loading = true; state.error = null; state.items = []; })
       .addCase(fetchProjectTasks.fulfilled, (state, action) => {
+        state.loading = false;
         state.items = action.payload;
+      })
+      .addCase(fetchProjectTasks.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       })
       .addCase(createTask.fulfilled, (state, action) => {
         state.items.push(action.payload);
@@ -126,5 +159,5 @@ const tasksSlice = createSlice({
   }
 });
 
-export const { optimisticReorder, optimisticUpdateStatus, socketTaskCreated, socketTaskUpdated, socketTaskDeleted, socketQueueReordered } = tasksSlice.actions;
+export const { optimisticReorder, optimisticUpdateStatus, socketTaskCreated, socketTaskUpdated, socketTaskDeleted, socketQueueReordered, socketNewStickyNote, socketNoteUpdated, socketNoteDeleted } = tasksSlice.actions;
 export default tasksSlice.reducer;

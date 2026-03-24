@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Users, FolderOpen } from 'lucide-react';
+import { Plus, Users, FolderOpen, RectangleEllipsis } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProjects } from '../features/projectSlice';
 import CreateProjectModal from '../components/CreateProjectModal';
@@ -60,7 +60,7 @@ const Dashboard = () => {
                   className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all"
                   onClick={() => setIsJoinModalOpen(true)}
                 >
-                  <Plus size={18} /> Join via Code
+                  <RectangleEllipsis size={18} /> Join via Code
                 </button>
                 {user?.role === 'PM' && (
                   <button

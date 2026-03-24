@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Key } from 'lucide-react';
-import { fetchAPI } from '../services/api';
+import { joinProjectAPI } from '../services/api';
 import { useDispatch } from 'react-redux';
 import { fetchProjects } from '../features/projectSlice';
 import { useNavigate } from 'react-router-dom';
@@ -22,10 +22,7 @@ const JoinProjectModal = ({ isOpen, onClose }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchAPI(`/projects/join`, {
-        method: 'POST',
-        body: JSON.stringify({ code: code.trim().toUpperCase() })
-      });
+      const res = await joinProjectAPI(code.trim().toUpperCase());
       if (res.success) {
         // Force refresh of User's Projects immediately since they joined a workspace
         await dispatch(fetchProjects());

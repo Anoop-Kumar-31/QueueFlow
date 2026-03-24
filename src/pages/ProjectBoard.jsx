@@ -3,10 +3,14 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProjectTasks } from '../features/tasksSlice';
 import { fetchProjects } from '../features/projectSlice';
-import { Plus, Users, Clock, CheckCircle, Circle, PlayCircle } from 'lucide-react';
+import { Plus, Users, Clock, CheckCircle, Circle, PlayCircle, Settings, LogOut } from 'lucide-react';
 import CreateTaskModal from '../components/CreateTaskModal';
 import GenerateInviteModal from '../components/GenerateInviteModal';
 import ActivityTimeline from '../components/ActivityTimeline';
+import TaskDetailsModal from '../components/TaskDetailsModal';
+import ManageAccessModal from '../components/ManageAccessModal';
+import { removeProjectMemberAPI } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const statusIcons = {
   PENDING: <Circle size={16} className="text-slate-400" />,
@@ -24,6 +28,9 @@ const ProjectBoard = () => {
   const { onlineUsers } = useSelector(state => state.auth);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isManageAccessOpen, setIsManageAccessOpen] = useState(false);
+  const [viewingTask, setViewingTask] = useState(null);
+  const navigate = useNavigate();
 
   const project = projects.find(p => p.id === projectId);
 
@@ -41,10 +48,16 @@ const ProjectBoard = () => {
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{project?.name || 'Project Board'}</h1>
           <p className="text-slate-500 dark:text-slate-400">All tasks assigned within this workspace.</p>
         </div>
-        {user?.role === 'PM' && (
-          <div className="flex items-center gap-3">
+        {user?.role === 'PM' ? (
+          <div className="flex flex-wrap items-center gap-3">
             <button
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all shadow-sm"
+              onClick={() => setIsManageAccessOpen(true)}
+            >
+              <Settings size={18} /> Manage Access
+            </button>
+            <button
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all shadow-sm"
               onClick={() => setIsInviteModalOpen(true)}
             >
               <Users size={18} /> Invite Team
@@ -54,6 +67,25 @@ const ProjectBoard = () => {
               onClick={() => setIsModalOpen(true)}
             >
               <Plus size={18} /> Assign Task
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <button
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 transition-all"
+              onClick={async () => {
+                 if (window.confirm("Are you sure you want to leave this workspace?")) {
+                    try {
+                      await removeProjectMemberAPI(projectId, user.id);
+                      navigate('/');
+                    } catch (err) {
+                      console.error(err);
+                      alert('Failed to leave workspace');
+                    }
+                 }
+              }}
+            >
+              <LogOut size={18} /> Leave Team
             </button>
           </div>
         )}
@@ -78,8 +110,17 @@ const ProjectBoard = () => {
 
                     <div className="space-y-3">
                       {groupTasks.map(task => (
-                        <div key={task.id} className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary transition-all">
-                          <h4 className="font-semibold text-slate-900 dark:text-white mb-2">{task.title}</h4>
+                        <div 
+                          key={task.id} 
+                          onClick={() => setViewingTask(task)}
+                          className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary transition-all cursor-pointer relative group"
+                        >
+                          {task.sticky_notes?.length > 0 && (
+                            <div className="absolute -top-2 -left-2 bg-amber-400 text-amber-900 text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+                              {task.sticky_notes.length}
+                            </div>
+                          )}
+                          <h4 className="font-semibold text-slate-900 dark:text-white mb-2 group-hover:text-primary transition-colors">{task.title}</h4>
                           <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">{task.description}</p>
                           <div className="flex items-center justify-between text-xs font-semibold">
                             <div className="flex items-center gap-1.5 text-slate-400 bg-slate-50 dark:bg-slate-800 px-2.5 py-1 rounded-md relative cursor-help" title={onlineUsers.includes(task.assigned_to) ? "Online" : "Offline"}>
@@ -107,6 +148,13 @@ const ProjectBoard = () => {
         </div>
       )}
 
+      <TaskDetailsModal 
+        isOpen={!!viewingTask} 
+        onClose={() => setViewingTask(null)} 
+        task={tasks.find(t => t.id === viewingTask?.id) || viewingTask} 
+        projectId={projectId} 
+      />
+
       {user?.role === 'PM' && (
         <>
           <CreateTaskModal
@@ -117,6 +165,11 @@ const ProjectBoard = () => {
           <GenerateInviteModal
             isOpen={isInviteModalOpen}
             onClose={() => setIsInviteModalOpen(false)}
+            projectId={projectId}
+          />
+          <ManageAccessModal 
+            isOpen={isManageAccessOpen}
+            onClose={() => setIsManageAccessOpen(false)}
             projectId={projectId}
           />
         </>

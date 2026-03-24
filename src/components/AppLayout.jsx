@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate, Link } from 'react-router-do
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../features/authSlice';
 import { initSocket, disconnectSocket } from '../services/socket';
-import { socketTaskCreated, socketTaskUpdated, socketTaskDeleted, socketQueueReordered } from '../features/tasksSlice';
+import { socketTaskCreated, socketTaskUpdated, socketTaskDeleted, socketQueueReordered, socketNewStickyNote, socketNoteUpdated, socketNoteDeleted } from '../features/tasksSlice';
 import { setOnlineUsers } from '../features/authSlice';
 import { LayoutDashboard, CheckSquare, Settings, LogOut, Activity, Bell, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -28,12 +28,19 @@ const AppLayout = () => {
       socket.on('task_deleted', (taskId) => dispatch(socketTaskDeleted(taskId)));
       socket.on('queue_reordered', (tasksArr) => dispatch(socketQueueReordered(tasksArr)));
       socket.on('online_users', (userIds) => dispatch(setOnlineUsers(userIds)));
+      socket.on('new_sticky_note', (note) => dispatch(socketNewStickyNote(note)));
+      socket.on('note_updated', (note) => dispatch(socketNoteUpdated(note)));
+      socket.on('note_deleted', (payload) => dispatch(socketNoteDeleted(payload)));
 
       return () => {
         socket.off('task_created');
         socket.off('task_updated');
         socket.off('task_deleted');
         socket.off('queue_reordered');
+        socket.off('online_users');
+        socket.off('new_sticky_note');
+        socket.off('note_updated');
+        socket.off('note_deleted');
       };
     } else {
       disconnectSocket();

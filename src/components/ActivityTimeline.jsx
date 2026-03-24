@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { initSocket } from '../services/socket';
-import { fetchAPI } from '../services/api';
-import { Clock, PlusCircle, CheckCircle, RefreshCw, LogIn, Trash2 } from 'lucide-react';
+import { fetchProjectActivitiesAPI } from '../services/api';
+import { Clock, PlusCircle, CheckCircle, RefreshCw, LogIn, Trash2, StickyNote, Folder, UserRoundMinus, LogOut } from 'lucide-react';
 
 const formatTimeAgo = (dateString) => {
   const diff = new Date() - new Date(dateString);
@@ -15,10 +15,16 @@ const formatTimeAgo = (dateString) => {
 
 const getActionIcon = (action) => {
   switch (action) {
+    case 'CREATED_PROJECT': return <Folder size={14} className="text-primary" />;
     case 'CREATED_TASK': return <PlusCircle size={14} className="text-green-500" />;
     case 'MOVED_TASK': return <RefreshCw size={14} className="text-blue-500" />;
-    case 'JOINED_PROJECT': return <LogIn size={14} className="text-primary" />;
+    case 'JOINED_PROJECT': return <LogIn size={14} className="text-lime-500" />;
     case 'DELETED_TASK': return <Trash2 size={14} className="text-red-500" />;
+    case 'ADDED_NOTE': return <StickyNote size={14} className="text-yellow-500" />;
+    case 'UPDATED_NOTE': return <StickyNote size={14} className="text-blue-500" />;
+    case 'DELETED_NOTE': return <Trash2 size={14} className="text-red-500" />;
+    case 'REMOVED_MEMBER': return <UserRoundMinus size={14} className="text-red-500" />;
+    case 'LEFT_PROJECT': return <LogOut size={14} className="text-red-500" />;
     default: return <CheckCircle size={14} className="text-slate-400" />;
   }
 };
@@ -29,9 +35,9 @@ const ActivityTimeline = ({ projectId }) => {
 
   useEffect(() => {
     if (!projectId) return;
-    
+
     // Initial fetch logs strictly isolated to active Workspace
-    fetchAPI(`/projects/${projectId}/activities`)
+    fetchProjectActivitiesAPI(projectId)
       .then(res => {
         if (res.success) setActivities(res.data);
         setLoading(false);
@@ -46,9 +52,9 @@ const ActivityTimeline = ({ projectId }) => {
     const handleNewActivity = (activity) => {
       setActivities(prev => [activity, ...prev].slice(0, 50));
     };
-    
+
     socket.on('new_activity', handleNewActivity);
-    
+
     return () => {
       socket.off('new_activity', handleNewActivity);
     };
@@ -64,7 +70,7 @@ const ActivityTimeline = ({ projectId }) => {
         <Clock size={16} className="text-slate-500" />
         <h3 className="font-semibold text-slate-900 dark:text-white">Activity Log</h3>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {activities.length === 0 ? (
           <div className="text-center text-sm text-slate-500 py-8">No recent activity</div>
@@ -73,10 +79,10 @@ const ActivityTimeline = ({ projectId }) => {
             {activities.map((activity, idx) => (
               <div key={activity.id} className="relative flex gap-4 mb-5 last:mb-0 group">
                 {/* Icon Circle */}
-                <div className="relative z-10 w-7 h-7 rounded-full bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 shadow-sm group-hover:border-primary/50 transition-colors">
+                <div className="relative z-10 w-7 h-7 rounded-full bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 shadow-sm group-hover:border-primary/50 transition-colors p-0">
                   {getActionIcon(activity.action)}
                 </div>
-                
+
                 {/* Content */}
                 <div className="flex-1 pt-1 pb-1">
                   <div className="flex items-baseline justify-between gap-2 mb-1">
