@@ -28,22 +28,32 @@ function App() {
   const dispatch = useDispatch();
   const { token, user } = useSelector(state => state.auth);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [isServerAwake, setIsServerAwake] = useState(false);
 
   useEffect(() => {
     const initializeAuth = async () => {
+      // 1. Ping the server health endpoint to wake up Render + Supabase DB
+      if (!isServerAwake) {
+        try {
+          await fetch(import.meta.env.VITE_API_URL + '/health');
+        } catch (e) {
+          console.error("Backend health check failed, but proceeding...", e);
+        }
+        setIsServerAwake(true);
+      }
+
+      // 2. Load user session
       if (token && !user) {
         dispatch(fetchUser());
       }
-      setIsInitializing(false)
+      setIsInitializing(false);
     };
 
     initializeAuth();
-  }, [dispatch, token, user]);
+  }, [dispatch, token, user, isServerAwake]);
 
-  if (isInitializing) {
-    return (
-      <Loading message="Loading Workspace" textSize="text-3xl" iconSize="w-4 h-4" iconColor="bg-primary" />
-    );
+  if (isInitializing || !isServerAwake) {
+    return <Loading />;
   }
 
   return (
