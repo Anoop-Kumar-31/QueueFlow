@@ -1,4 +1,4 @@
-# 🚀 QueueFlow - Real-Time Kanban Workspace (Frontend)
+# 🚀 QueueFlow – Real‑Time Task Queue & Team Collaboration Platform
 
 [![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react&logoColor=white&style=for-the-badge)](https://react.dev/)
 [![React Router](https://img.shields.io/badge/React_Router-7.x-CA4245?logo=react-router&logoColor=white&style=for-the-badge)](https://reactrouter.com/)
