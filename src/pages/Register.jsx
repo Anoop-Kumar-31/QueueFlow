@@ -15,7 +15,6 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState('PM');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.auth);
@@ -23,17 +22,12 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     dispatch(clearError());
-    const resultAction = await dispatch(registerUser({ name, email, password, role }));
+    const resultAction = await dispatch(registerUser({ name, email, password }));
     if (registerUser.fulfilled.match(resultAction)) {
       navigate('/login');
     }
   };
 
-  const ROLE_OPTIONS = [
-    { value: 'PM', label: 'Project Manager', desc: 'Create & manage projects' },
-    { value: 'DEVELOPER', label: 'Developer', desc: 'Receive & complete tasks' },
-    { value: 'CLIENT', label: 'Client', desc: 'View progress & leave feedback' },
-  ];
 
   return (
     <div className="flex min-h-screen font-sans bg-[#09090b]">
@@ -123,30 +117,6 @@ const Register = () => {
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
-              </div>
-            </div>
-
-            {/* Role Selector — card style */}
-            <div>
-              <label className="block text-sm font-semibold text-slate-300 mb-3">Account Role</label>
-              <div className="grid grid-cols-1 gap-1">
-                {ROLE_OPTIONS.map(opt => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setRole(opt.value)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all ${role === opt.value
-                      ? 'border-violet-500 bg-violet-500/10 text-white'
-                      : 'border-white/10 bg-white/3 text-slate-400 hover:border-white/20 hover:text-slate-300'
-                      }`}
-                  >
-                    <div className={`w-3.5 h-3.5 rounded-full border-2 shrink-0 ${role === opt.value ? 'border-violet-500 bg-violet-500' : 'border-slate-600'}`} />
-                    <div>
-                      <p className="text-xs font-semibold">{opt.label}</p>
-                      <p className="text-xs text-slate-500">{opt.desc}</p>
-                    </div>
-                  </button>
-                ))}
               </div>
             </div>
 

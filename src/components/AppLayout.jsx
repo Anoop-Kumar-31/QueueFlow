@@ -6,20 +6,20 @@ import { initSocket, disconnectSocket } from '../services/socket';
 import { socketTaskCreated, socketTaskUpdated, socketTaskDeleted, socketQueueReordered, socketNewStickyNote, socketNoteUpdated, socketNoteDeleted } from '../features/tasksSlice';
 import { setOnlineUsers } from '../features/authSlice';
 
-import AppSidebar      from './layout/AppSidebar';
-import SearchBar       from './layout/SearchBar';
+import AppSidebar from './layout/AppSidebar';
+import SearchBar from './layout/SearchBar';
 import NotificationBell from './layout/NotificationBell';
-import ThemeToggle     from './layout/ThemeToggle';
+import ThemeToggle from './layout/ThemeToggle';
 
 const AppLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const [notifications, setNotifications] = useState([]);
-  const [notifOpen, setNotifOpen]         = useState(false);
-  const [unreadCount, setUnreadCount]     = useState(0);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const dispatch = useDispatch();
-  const { user }            = useSelector((s) => s.auth);
+  const { user } = useSelector((s) => s.auth);
   const { items: projects } = useSelector((s) => s.projects);
 
   useEffect(() => {
@@ -28,14 +28,14 @@ const AppLayout = () => {
     const socket = initSocket();
     socket.emit('join_user', user.id);
 
-    socket.on('task_created',   (t)   => dispatch(socketTaskCreated(t)));
-    socket.on('task_updated',   (t)   => dispatch(socketTaskUpdated(t)));
-    socket.on('task_deleted',   (id)  => dispatch(socketTaskDeleted(id)));
-    socket.on('queue_reordered',(arr) => dispatch(socketQueueReordered(arr)));
-    socket.on('online_users',   (ids) => dispatch(setOnlineUsers(ids)));
-    socket.on('new_sticky_note',(n)   => dispatch(socketNewStickyNote(n)));
-    socket.on('note_updated',   (n)   => dispatch(socketNoteUpdated(n)));
-    socket.on('note_deleted',   (p)   => dispatch(socketNoteDeleted(p)));
+    socket.on('task_created', (t) => dispatch(socketTaskCreated(t)));
+    socket.on('task_updated', (t) => dispatch(socketTaskUpdated(t)));
+    socket.on('task_deleted', (id) => dispatch(socketTaskDeleted(id)));
+    socket.on('queue_reordered', (arr) => dispatch(socketQueueReordered(arr)));
+    socket.on('online_users', (ids) => dispatch(setOnlineUsers(ids)));
+    socket.on('new_sticky_note', (n) => dispatch(socketNewStickyNote(n)));
+    socket.on('note_updated', (n) => dispatch(socketNoteUpdated(n)));
+    socket.on('note_deleted', (p) => dispatch(socketNoteDeleted(p)));
 
     // Real-time notification feed (ignore own actions)
     socket.on('new_activity', (activity) => {
@@ -45,8 +45,8 @@ const AppLayout = () => {
     });
 
     return () => {
-      ['task_created','task_updated','task_deleted','queue_reordered',
-       'online_users','new_sticky_note','note_updated','note_deleted','new_activity']
+      ['task_created', 'task_updated', 'task_deleted', 'queue_reordered',
+        'online_users', 'new_sticky_note', 'note_updated', 'note_deleted', 'new_activity']
         .forEach(e => socket.off(e));
     };
   }, [user?.id, dispatch]);
@@ -63,17 +63,13 @@ const AppLayout = () => {
     setUnreadCount(0);
   };
 
-  const roleLabel =
-    user?.role === 'PM' ? 'Project Manager' :
-    user?.role === 'DEVELOPER' ? 'Developer' : 'Client';
-
   const initials = user?.name
     ? (() => {
-        const parts = user.name.split(' ');
-        return parts.length > 1
-          ? parts[0].charAt(0).toUpperCase() + parts[parts.length - 1].charAt(0).toUpperCase()
-          : parts[0].charAt(0).toUpperCase();
-      })()
+      const parts = user.name.split(' ');
+      return parts.length > 1
+        ? parts[0].charAt(0).toUpperCase() + parts[parts.length - 1].charAt(0).toUpperCase()
+        : parts[0].charAt(0).toUpperCase();
+    })()
     : 'U';
 
   return (
@@ -89,7 +85,7 @@ const AppLayout = () => {
 
           <div className="flex items-center gap-5">
             <ThemeToggle />
-            
+
             <NotificationBell
               notifications={notifications}
               unreadCount={unreadCount}
@@ -103,7 +99,7 @@ const AppLayout = () => {
             <div className="flex items-center gap-3">
               <div className="text-right min-w-[100px]">
                 <div className="text-sm font-semibold text-slate-900 dark:text-white">{user?.name}</div>
-                <div className="text-xs text-slate-500">{roleLabel}</div>
+                <div className="text-xs text-slate-500">{user?.email}</div>
               </div>
               <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#482acc] to-[#8b5cf6] text-white flex items-center justify-center font-bold shadow-lg shadow-primary/30">
                 {initials}

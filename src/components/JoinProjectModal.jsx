@@ -7,9 +7,10 @@ import { useNavigate } from 'react-router-dom';
 
 const JoinProjectModal = ({ isOpen, onClose }) => {
   const [code, setCode] = useState('');
+  const [role, setRole] = useState('developer');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -22,7 +23,7 @@ const JoinProjectModal = ({ isOpen, onClose }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await joinProjectAPI(code.trim().toUpperCase());
+      const res = await joinProjectAPI(code.trim().toUpperCase(), role.toUpperCase());
       if (res.success) {
         dispatch(fetchProjects());
         onClose();
@@ -43,25 +44,45 @@ const JoinProjectModal = ({ isOpen, onClose }) => {
         <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
           <X size={20} />
         </button>
-        
+
         <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
           <Key className="text-primary" size={24} />
         </div>
-        
+
         <h2 className="text-2xl font-bold text-center text-slate-900 dark:text-white mb-2">Join Project</h2>
         <p className="text-slate-500 dark:text-slate-400 text-center text-sm mb-6">Enter the 6-character invite code provided by your Project Manager.</p>
-        
+
         {error && <div className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm">{error}</div>}
-        
+
         <form onSubmit={handleJoin} className="space-y-4">
           <div>
-            <input 
-              type="text" 
-              className="w-full px-4 py-3 rounded-lg border border-slate-200 bg-transparent font-mono text-center text-lg tracking-[0.2em] uppercase text-slate-900 dark:border-slate-800 dark:text-white outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all placeholder:tracking-normal placeholder:normal-case placeholder:text-slate-400" 
+            <input
+              type="text"
+              className="w-full px-4 py-3 rounded-lg border border-slate-200 bg-transparent font-mono text-center text-lg tracking-[0.2em] uppercase text-slate-900 dark:border-slate-800 dark:text-white outline-none focus:border-primary focus:ring-3 focus:ring-primary/15 transition-all placeholder:tracking-normal placeholder:normal-case placeholder:text-slate-400"
               placeholder="e.g. X9KZ2P"
               maxLength={6}
-              value={code} onChange={e => setCode(e.target.value)} required 
+              value={code} onChange={e => setCode(e.target.value)} required
             />
+          </div>
+          <div>
+            <label className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-2 block ml-1">
+              Your Role
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {['developer', 'client'].map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => setRole(r)}
+                  className={`px-4 py-2.5 rounded-xl border text-sm font-semibold capitalize transition-all ${role === r
+                    ? 'bg-primary/10 border-primary text-primary shadow-sm ring-2 ring-primary/5'
+                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 hover:border-slate-300 dark:hover:border-slate-700'
+                    }`}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
           </div>
           <button type="submit" className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 mt-4 rounded-lg font-semibold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 transition-all font-sans" disabled={loading || code.length < 6}>
             {loading ? 'Verifying...' : 'Join Workspace'}

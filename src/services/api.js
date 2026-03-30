@@ -1,3 +1,8 @@
+let store;
+export const injectStore = (_store) => {
+  store = _store;
+};
+
 const url = import.meta.env.VITE_API_URL;
 const BASE_URL = url[url.length - 1] === "/" ? url.slice(0, -1) + '/api' : url + "/api";
 
@@ -57,7 +62,7 @@ export const fetchUserAPI = async (token) => {
 
 // Generic fetch wrapper with auto-injected Auth token
 export const fetchAPI = async (endpoint, options = {}) => {
-  const token = localStorage.getItem('token');
+  const token = store ? store.getState()?.auth?.token : null;
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
@@ -76,9 +81,6 @@ export const fetchAPI = async (endpoint, options = {}) => {
   if (!res.ok) throw new Error(data.message || 'API request failed');
   return data;
 };
-
-
-
 
 export const generateInviteCodeAPI = async (projectId, expiresInHours) => {
   return await fetchAPI(`/projects/${projectId}/generate-invite`, {
@@ -107,10 +109,10 @@ export const deleteStickyNoteAPI = async (noteId) => {
   });
 };
 
-export const joinProjectAPI = async (code) => {
+export const joinProjectAPI = async (code, role) => {
   return await fetchAPI(`/projects/join`, {
     method: 'POST',
-    body: JSON.stringify({ code })
+    body: JSON.stringify({ code, role })
   });
 };
 
@@ -130,4 +132,10 @@ export const removeProjectMemberAPI = async (projectId, userId) => {
 
 export const fetchProjectAnalyticsAPI = async (projectId) => {
   return await fetchAPI(`/projects/${projectId}/analytics`);
+};
+
+export const deleteTaskAPI = async (taskId) => {
+  return await fetchAPI(`/tasks/${taskId}`, {
+    method: 'DELETE'
+  });
 };

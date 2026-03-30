@@ -3,12 +3,21 @@ import { useDispatch, useSelector } from 'react-redux';
 import { X, Send, User, Clock, Edit2, Trash2 } from 'lucide-react';
 import { createStickyNoteAPI, updateStickyNoteAPI, deleteStickyNoteAPI } from '../services/api';
 
-const TaskDetailsModal = ({ isOpen, onClose, task, projectId }) => {
+const TaskDetailsModal = ({ isOpen, onClose, task, projectId, isPM, onEditClick, onDeleteClick }) => {
   const [noteText, setNoteText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [editingText, setEditingText] = useState('');
   const { user } = useSelector(state => state.auth);
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 1: return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400';
+      case 2: return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400';
+      case 3: return 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400';
+      default: return 'bg-slate-200 text-slate-700';
+    }
+  };
 
   console.log(task)
 
@@ -54,12 +63,29 @@ const TaskDetailsModal = ({ isOpen, onClose, task, projectId }) => {
               {task.status.replace('_', ' ')}
             </span>
           </div>
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors bg-slate-100 dark:bg-slate-800 p-2 rounded-full"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            {isPM && (
+              [<button
+                onClick={onEditClick}
+                className="text-slate-400 hover:text-primary hover:bg-primary/10 transition-all cursor-pointer bg-slate-100 dark:bg-slate-800 p-2 rounded-full"
+                title="Edit Task"
+              >
+                <Edit2 size={20} />
+              </button>,
+              <button
+                onClick={onDeleteClick}
+                className="text-red-500 bg-slate-100 dark:bg-slate-800 hover:bg-red-500/10 dark:hover:bg-red-800/30 p-2 rounded-full transition-all cursor-pointer"
+              >
+                <Trash2 size={20} />
+              </button>]
+            )}
+            <button
+              onClick={onClose}
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-500/10 p-2 rounded-full transition-all cursor-pointer"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
@@ -84,7 +110,7 @@ const TaskDetailsModal = ({ isOpen, onClose, task, projectId }) => {
               <div className="flex items-center gap-2">
                 <Clock size={16} className="text-slate-400" />
                 <span className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                  Priority: <span className="text-slate-900 dark:text-white font-bold">{task.priority === 0 ? 'Normal' : 'High'}</span>
+                  Priority: <span className={`px-2.5 py-1 rounded-md text-xs font-bold ${getPriorityColor(task.priority)} tracking-wide`}>{task.priority === 1 ? 'HIGH' : task.priority === 2 ? 'MEDIUM' : 'LOW'}</span>
                 </span>
               </div>
             </div>

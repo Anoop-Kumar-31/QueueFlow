@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend, LineChart, Line, CartesianGrid
+  PieChart, Pie, Legend, LineChart, Line, CartesianGrid
 } from 'recharts';
 import {
   AlertTriangle, CheckCircle2, TrendingUp, Users,
@@ -77,8 +77,57 @@ const AnalyticsDashboard = () => {
   }, [projectId]);
 
   if (loading) return (
-    <div className="max-w-6xl mx-auto">
-      <div className="h-80 flex items-center justify-center text-slate-400 animate-pulse text-lg font-semibold">Building intelligence report...</div>
+    <div className="max-w-6xl mx-auto space-y-8 p-4">
+      {/* Header Skeleton */}
+      <div className="space-y-3">
+        <div className="h-4 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+        <div className="h-10 w-64 bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse" />
+        <div className="h-4 w-96 bg-slate-100 dark:bg-slate-900 rounded animate-pulse" />
+      </div>
+
+      {/* Overall Summary Banner Skeleton */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="flex flex-col items-center space-y-3">
+              <div className="h-8 w-12 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+              <div className="h-3 w-16 bg-slate-100 dark:bg-slate-900 rounded animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Stat Cards Row Skeleton */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-slate-200 dark:bg-slate-800 animate-pulse shrink-0" />
+            <div className="space-y-2">
+              <div className="h-6 w-10 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+              <div className="h-3 w-16 bg-slate-100 dark:bg-slate-900 rounded animate-pulse" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Main Content Layout Skeleton */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Charts Skeletons */}
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 h-72">
+            <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded mb-8 animate-pulse" />
+            <div className="flex items-center justify-center h-40">
+              <div className="w-32 h-32 rounded-full border-8 border-slate-100 dark:border-slate-800 animate-pulse" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Large Trend Chart Skeleton */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 h-80">
+        <div className="h-4 w-48 bg-slate-200 dark:bg-slate-800 rounded mb-8 animate-pulse" />
+        <div className="w-full h-48 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-800 animate-pulse" />
+      </div>
     </div>
   );
 
@@ -93,10 +142,10 @@ const AnalyticsDashboard = () => {
   const { metrics, developerLoad, insights, dailySummary, trendData, inProgressChips, priorityBreakdown, overallSummary } = data;
 
   const pieData = [
-    { name: 'Done', value: metrics.done, color: STATUS_COLORS.done },
-    { name: 'In Progress', value: metrics.inProgress, color: STATUS_COLORS.inProgress },
-    { name: 'Review', value: metrics.review, color: STATUS_COLORS.review },
-    { name: 'Pending', value: metrics.pending, color: STATUS_COLORS.pending },
+    { name: 'Done', value: metrics.done, fill: STATUS_COLORS.done },
+    { name: 'In Progress', value: metrics.inProgress, fill: STATUS_COLORS.inProgress },
+    { name: 'Review', value: metrics.review, fill: STATUS_COLORS.review },
+    { name: 'Pending', value: metrics.pending, fill: STATUS_COLORS.pending },
   ].filter(d => d.value > 0);
 
   return (
@@ -247,10 +296,17 @@ const AnalyticsDashboard = () => {
           {pieData.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <PieChart>
-                <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={85} innerRadius={50} paddingAngle={3}>
-                  {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                </Pie>
-                <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, color: '#e2e8f0', fontSize: 13 }} />
+                <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={85} innerRadius={50} paddingAngle={0} />
+                <Tooltip
+                  contentStyle={{
+                    background: 'var(--tooltip-bg)',
+                    border: '1px solid var(--tooltip-border)',
+                    borderRadius: 12,
+                    color: 'var(--tooltip-text)',
+                    fontSize: 13
+                  }}
+                  itemStyle={{ color: 'var(--tooltip-text)' }}
+                />
                 <Legend iconType="circle" iconSize={10} />
               </PieChart>
             </ResponsiveContainer>
@@ -263,10 +319,17 @@ const AnalyticsDashboard = () => {
           {priorityBreakdown.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <PieChart>
-                <Pie data={priorityBreakdown} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={85} innerRadius={50} paddingAngle={3}>
-                  {priorityBreakdown.map((entry, i) => <Cell key={i} fill={entry.color} />)}
-                </Pie>
-                <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, color: '#e2e8f0', fontSize: 13 }} />
+                <Pie data={priorityBreakdown.map(e => ({ ...e, fill: e.color }))} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={85} innerRadius={50} paddingAngle={0} />
+                <Tooltip
+                  contentStyle={{
+                    background: 'var(--tooltip-bg)',
+                    border: '1px solid var(--tooltip-border)',
+                    borderRadius: 12,
+                    color: 'var(--tooltip-text)',
+                    fontSize: 13
+                  }}
+                  itemStyle={{ color: 'var(--tooltip-text)' }}
+                />
                 <Legend iconType="circle" iconSize={10} />
               </PieChart>
             </ResponsiveContainer>
@@ -281,7 +344,16 @@ const AnalyticsDashboard = () => {
               <BarChart data={developerLoad} layout="vertical" barCategoryGap="30%">
                 <XAxis type="number" tick={{ fill: '#94a3b8', fontSize: 11 }} allowDecimals={false} />
                 <YAxis type="category" dataKey="name" width={80} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-                <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, color: '#e2e8f0', fontSize: 13 }} />
+                <Tooltip
+                  contentStyle={{
+                    background: 'var(--tooltip-bg)',
+                    border: '1px solid var(--tooltip-border)',
+                    borderRadius: 12,
+                    color: 'var(--tooltip-text)',
+                    fontSize: 13
+                  }}
+                  itemStyle={{ color: 'var(--tooltip-text)' }}
+                />
                 <Bar dataKey="tasks" fill="#7c3aed" radius={[0, 6, 6, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -301,7 +373,16 @@ const AnalyticsDashboard = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
               <XAxis dataKey="date" tick={{ fill: '#94a3b8', fontSize: 11 }} />
               <YAxis allowDecimals={false} tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <Tooltip contentStyle={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 12, color: '#e2e8f0', fontSize: 13 }} />
+              <Tooltip
+                contentStyle={{
+                  background: 'var(--tooltip-bg)',
+                  border: '1px solid var(--tooltip-border)',
+                  borderRadius: 12,
+                  color: 'var(--tooltip-text)',
+                  fontSize: 13
+                }}
+                itemStyle={{ color: 'var(--tooltip-text)' }}
+              />
               <Legend />
               <Line type="monotone" dataKey="created" stroke="#7c3aed" strokeWidth={2} dot={{ r: 4 }} name="Created" />
               <Line type="monotone" dataKey="completed" stroke="#22c55e" strokeWidth={2} dot={{ r: 4 }} name="Completed" />

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createTask } from '../features/tasksSlice';
+import { createTask, updateTaskData } from '../features/tasksSlice';
 import { X, Users } from 'lucide-react';
 import { fetchProjectMembersAPI } from '../services/api';
 
-const CreateTaskModal = ({ isOpen, onClose, projectId }) => {
+const CreateTaskModal = ({ isOpen, onClose, projectId, editingTask = null }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [assignedTo, setAssignedTo] = useState('');
@@ -27,11 +27,23 @@ const CreateTaskModal = ({ isOpen, onClose, projectId }) => {
           console.error(err);
           setLoadingMembers(false);
         });
-    } else {
+
+      if (editingTask) {
+        setTitle(editingTask.title || '');
+        setDescription(editingTask.description || '');
+        setAssignedTo(editingTask.assigned_to || '');
+        setPriority(editingTask.priority || 1);
+      } else {
+        setTitle('');
+        setDescription('');
+        setAssignedTo('');
+        setPriority(1);
+      }
+    } else if (!isOpen) {
       setMembers([]);
       setAssignedTo('');
     }
-  }, [isOpen, projectId]);
+  }, [isOpen, projectId, editingTask]);
 
   if (!isOpen) return null;
 
@@ -39,12 +51,20 @@ const CreateTaskModal = ({ isOpen, onClose, projectId }) => {
     e.preventDefault();
     if (!assignedTo) return alert("You must provide an Assigned User ID");
 
-    const result = await dispatch(createTask({
-      projectId,
-      taskData: { title, description, assigned_to: assignedTo, priority }
-    }));
+    let result;
+    if (editingTask) {
+      result = await dispatch(updateTaskData({
+        taskId: editingTask.id,
+        taskData: { title, description, assigned_to: assignedTo, priority: parseInt(priority) }
+      }));
+    } else {
+      result = await dispatch(createTask({
+        projectId,
+        taskData: { title, description, assigned_to: assignedTo, priority: parseInt(priority) }
+      }));
+    }
 
-    if (createTask.fulfilled.match(result)) {
+    if (editingTask ? updateTaskData.fulfilled.match(result) : createTask.fulfilled.match(result)) {
       setTitle('');
       setDescription('');
       setAssignedTo('');
@@ -58,7 +78,9 @@ const CreateTaskModal = ({ isOpen, onClose, projectId }) => {
         <button onClick={onClose} className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
           <X size={20} />
         </button>
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Assign Task</h2>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
+          {editingTask ? 'Edit Task' : 'Assign Task'}
+        </h2>
 
         {error && <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm">{error}</div>}
 
@@ -99,7 +121,7 @@ const CreateTaskModal = ({ isOpen, onClose, projectId }) => {
                 <option value="" disabled>Select a team member</option>
                 {members.map(member => (
                   <option key={member.user.id} value={member.user.id} className="bg-white dark:bg-slate-900">
-                    {member.user.name} ({member.user.role})
+                    {member.user.name}
                   </option>
                 ))}
               </select>
@@ -108,7 +130,7 @@ const CreateTaskModal = ({ isOpen, onClose, projectId }) => {
             {loadingMembers && <p className="text-xs text-primary mt-2">Fetching project roster...</p>}
           </div>
           <button type="submit" className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 mt-4 rounded-lg font-semibold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30" disabled={loading || !assignedTo}>
-            {loading ? 'Creating...' : 'Create Task'}
+            {loading ? 'Saving...' : (editingTask ? 'Save Changes' : 'Create Task')}
           </button>
         </form>
       </div>

@@ -51,6 +51,21 @@ export const updateTaskStatus = createAsyncThunk(
   }
 );
 
+export const updateTaskData = createAsyncThunk(
+  'tasks/updateTaskData',
+  async ({ taskId, taskData }, { rejectWithValue }) => {
+    try {
+      return await fetchAPI(`/tasks/${taskId}`, {
+        method: 'PUT',
+        body: JSON.stringify(taskData)
+      });
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+
 export const reorderQueue = createAsyncThunk(
   'tasks/reorderQueue',
   async (tasks, { rejectWithValue }) => {

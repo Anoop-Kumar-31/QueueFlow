@@ -10,12 +10,11 @@ import { useNavigate } from 'react-router-dom';
 const Dashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { user } = useSelector(state => state.auth);
   const { items: projects, loading } = useSelector(state => state.projects);
-  console.log(projects)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
 
+  console.log(projects);
   useEffect(() => {
     dispatch(fetchProjects());
   }, [dispatch]);
@@ -35,20 +34,49 @@ const Dashboard = () => {
             <Plus size={18} /> Join Project
           </button>
 
-          {user?.role === 'PM' && (
-            <button
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold bg-primary hover:bg-primary-hover text-white hover:-translate-y-px shadow-lg shadow-primary/30 transition-all"
-              onClick={() => setIsModalOpen(true)}
-            >
-              <Plus size={18} /> New Project
-            </button>
-          )}
+          <button
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold bg-primary hover:bg-primary-hover text-white hover:-translate-y-px shadow-lg shadow-primary/30 transition-all"
+            onClick={() => setIsModalOpen(true)}
+          >
+            <Plus size={18} /> New Project
+          </button>
+
         </div>
       </div>
 
       {loading && projects.length === 0 ? (
-        <div className="flex items-center justify-center">
-          <div className="text-primary"> Loading your workspace...</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 blur-[1px]">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 flex flex-col h-[220px]">
+              {/* Title and Badge Skeleton */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="h-6 w-32 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+                <div className="h-5 w-16 bg-slate-100 dark:bg-slate-800 rounded-full animate-pulse" />
+              </div>
+
+              {/* Description Lines Skeleton */}
+              <div className="space-y-2 flex-1">
+                <div className="h-4 w-full bg-slate-100 dark:bg-slate-800/50 rounded animate-pulse" />
+                <div className="h-4 w-5/6 bg-slate-100 dark:bg-slate-800/50 rounded animate-pulse" />
+              </div>
+
+              {/* Creator Name Skeleton */}
+              <div className="h-3 w-24 bg-slate-50 dark:bg-slate-800/30 rounded mt-4 mb-4 animate-pulse" />
+
+              {/* Divider */}
+              <div className="h-px bg-slate-100 dark:bg-slate-800 -mx-6 mb-4" />
+
+              {/* Footer Skeleton (Team and Date) */}
+              <div className="flex items-center justify-between">
+                <div className="flex gap-1">
+                  {[...Array(3)].map((_, j) => (
+                    <div key={j} className="h-6 w-6 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse" />
+                  ))}
+                </div>
+                <div className="h-4 w-20 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -64,14 +92,12 @@ const Dashboard = () => {
                 >
                   <RectangleEllipsis size={18} /> Join via Code
                 </button>
-                {user?.role === 'PM' && (
-                  <button
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold bg-primary hover:bg-primary-hover text-white shadow-lg shadow-primary/30 transition-all"
-                    onClick={() => setIsModalOpen(true)}
-                  >
-                    <Plus size={18} /> Create Project
-                  </button>
-                )}
+                <button
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold bg-primary hover:bg-primary-hover text-white shadow-lg shadow-primary/30 transition-all"
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  <Plus size={18} /> Create Project
+                </button>
               </div>
             </div>
           ) : (
@@ -94,8 +120,13 @@ const Dashboard = () => {
                 <div className="h-px bg-slate-200 dark:bg-slate-800 -mx-6 mb-4" />
 
                 <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
-                  <div className="flex items-center gap-2">
-                    <Users size={16} /> Team
+                  <div className="flex items-center gap-1 overflow-x-scroll">
+                    <Users size={16} /> Team:
+                    {project.members.map(member => (
+                      <span key={member.id} className="h-6 w-6 flex items-center justify-center rounded-full text-[10px] font-semibold bg-primary/20 text-primary border border-primary shrink-0" title={member.user.name}>
+                        {member.user.name.charAt(0).toUpperCase() + member.user.name.split(' ').pop().charAt(0).toUpperCase()}
+                      </span>
+                    ))}
                   </div>
                   <span>{new Date(project.created_at).toLocaleDateString()}</span>
                 </div>
