@@ -14,33 +14,31 @@ const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
 
-  console.log(projects);
   useEffect(() => {
     dispatch(fetchProjects());
   }, [dispatch]);
 
   return (
     <div className="max-w-7xl">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 md:mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">Overview</h1>
-          <p className="text-slate-500 dark:text-slate-400">Welcome back! Here's what's happening in your workspace.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1">Overview</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base">Welcome back! Here's what's happening in your workspace.</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all"
             onClick={() => setIsJoinModalOpen(true)}
           >
-            <Plus size={18} /> Join Project
+            <Plus size={16} /> Join Project
           </button>
 
           <button
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold bg-primary hover:bg-primary-hover text-white hover:-translate-y-px shadow-lg shadow-primary/30 transition-all"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm bg-primary hover:bg-primary-hover text-white hover:-translate-y-px shadow-lg shadow-primary/30 transition-all"
             onClick={() => setIsModalOpen(true)}
           >
-            <Plus size={18} /> New Project
+            <Plus size={16} /> New Project
           </button>
-
         </div>
       </div>
 

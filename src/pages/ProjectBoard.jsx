@@ -44,51 +44,51 @@ const ProjectBoard = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+      <div className="flex flex-col gap-4 mb-6 md:mb-8">
         <div>
           <Link to={`/`} className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary transition-colors mb-2">
             <ArrowLeft size={14} /> Back to Dashboard
           </Link>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{project?.name || 'Project Board'}</h1>
-          <p className="text-slate-500 dark:text-slate-400">All tasks assigned within this workspace.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1">{project?.name || 'Project Board'}</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base">All tasks assigned within this workspace.</p>
         </div>
         {project?.userRole === 'PM' ? (
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <Link
               to={`/project/${projectId}/analytics`}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all shadow-sm"
             >
-              <BarChart2 size={18} /> Analytics
+              <BarChart2 size={16} /> <span className="hidden sm:block">Analytics</span>
             </Link>
             <button
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all shadow-sm"
               onClick={() => setIsManageAccessOpen(true)}
             >
-              <Settings size={18} /> Manage Access
+              <Settings size={16} /> <span className="hidden sm:block">Manage Access</span>
             </button>
             <button
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all shadow-sm"
               onClick={() => setIsInviteModalOpen(true)}
             >
-              <Users size={18} /> Invite Team
+              <Users size={16} /> <span>Invite</span>
             </button>
             <button
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg font-semibold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 transition-all font-inter"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 transition-all"
               onClick={() => setIsModalOpen(true)}
             >
-              <Plus size={18} /> Assign Task
+              <Plus size={16} /> <span >Assign Task</span>
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Link
               to={`/project/${projectId}/analytics`}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all shadow-sm"
+              className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all shadow-sm"
             >
-              <BarChart2 size={18} /> Analytics
+              <BarChart2 size={16} /> Analytics
             </Link>
             <button
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 transition-all"
+              className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 transition-all"
               onClick={async () => {
                 if (window.confirm("Are you sure you want to leave this workspace?")) {
                   try {
@@ -101,7 +101,7 @@ const ProjectBoard = () => {
                 }
               }}
             >
-              <LogOut size={18} /> Leave Team
+              <LogOut size={16} /> Leave Team
             </button>
           </div>
         )}
@@ -176,8 +176,8 @@ const ProjectBoard = () => {
                               {task.sticky_notes.length}
                             </div>
                           )}
-                          <div className={`absolute top-1 right-1 rounded-tr-lg rounded-bl-xs  w-3 h-3 ${task.priority === 1 ? 'bg-red-500/70' : task.priority === 2 ? 'bg-yellow-500/70' : 'bg-green-500/70'}`} />
-                          <h4 className="font-semibold text-slate-900 dark:text-white mb-2 group-hover:text-primary transition-colors">{task.title}</h4>
+                          <div className={`absolute top-1 right-1 rounded-tr-lg w-3 h-3 ${task.priority === 1 ? 'bg-red-500/70' : task.priority === 2 ? 'bg-yellow-500/70' : 'bg-green-500/70'}`} />
+                          <h4 className="font-semibold text-slate-900 dark:text-white mb-2 group-hover:text-primary transition-colors text-sm">{task.title}</h4>
                           <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2">{task.description}</p>
                           <div className="flex items-center justify-between text-xs font-semibold">
                             <div className="flex items-center gap-1.5 text-slate-400 bg-slate-50 dark:bg-slate-800 px-2.5 py-1 rounded-md relative cursor-help" title={onlineUsers.includes(task.assigned_to) ? "Online" : "Offline"}>
@@ -185,7 +185,6 @@ const ProjectBoard = () => {
                               <Users size={14} /> {task.assignee?.name?.split(' ')[0] || 'Unknown'}
                             </div>
                             <div className="text-slate-400">#{task.position}</div>
-
                           </div>
                         </div>
                       ))}
@@ -200,7 +199,7 @@ const ProjectBoard = () => {
               })}
             </div>
           </div>
-          <div className="w-full xl:w-[320px] shrink-0 h-[500px] xl:h-[calc(100vh-200px)] xl:sticky xl:top-6">
+          <div className="w-full xl:w-[320px] shrink-0 h-[400px] xl:h-[calc(100vh-200px)] xl:sticky xl:top-6">
             <ActivityTimeline projectId={projectId} />
           </div>
         </div>

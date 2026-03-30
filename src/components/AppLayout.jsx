@@ -10,9 +10,10 @@ import AppSidebar from './layout/AppSidebar';
 import SearchBar from './layout/SearchBar';
 import NotificationBell from './layout/NotificationBell';
 import ThemeToggle from './layout/ThemeToggle';
+import { Menu } from 'lucide-react';
 
 const AppLayout = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [notifications, setNotifications] = useState([]);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -21,6 +22,17 @@ const AppLayout = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((s) => s.auth);
   const { items: projects } = useSelector((s) => s.projects);
+
+  // Open sidebar by default on desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) setIsSidebarOpen(true);
+      else setIsSidebarOpen(false);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (!user?.id) { disconnectSocket(); return; }
@@ -77,13 +89,23 @@ const AppLayout = () => {
 
       <AppSidebar isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(o => !o)} />
 
-      <div className="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950">
+      <div className="flex-1 flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 min-w-0">
 
-        <header className="h-[70px] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 shrink-0">
+        <header className="h-[64px] bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 md:px-8 shrink-0 gap-3">
 
-          <SearchBar />
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setIsSidebarOpen(o => !o)}
+            className="lg:hidden p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+          >
+            <Menu size={22} />
+          </button>
 
-          <div className="flex items-center gap-5">
+          <div className="flex-1 min-w-0">
+            <SearchBar />
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
             <ThemeToggle />
 
             <NotificationBell
@@ -96,19 +118,20 @@ const AppLayout = () => {
             />
 
             {/* User chip */}
-            <div className="flex items-center gap-3">
-              <div className="text-right min-w-[100px]">
-                <div className="text-sm font-semibold text-slate-900 dark:text-white">{user?.name}</div>
-                <div className="text-xs text-slate-500">{user?.email}</div>
+            <div className="flex items-center gap-2">
+              {/* Show name/email only on md+ */}
+              <div className="hidden md:block text-right">
+                <div className="text-sm font-semibold text-slate-900 dark:text-white truncate max-w-[140px]">{user?.name}</div>
+                <div className="text-xs text-slate-500 truncate max-w-[140px]">{user?.email}</div>
               </div>
-              <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#482acc] to-[#8b5cf6] text-white flex items-center justify-center font-bold shadow-lg shadow-primary/30">
+              <div className="w-9 h-9 rounded-full bg-linear-to-br from-[#482acc] to-[#8b5cf6] text-white flex items-center justify-center font-bold text-sm shadow-lg shadow-primary/30 shrink-0">
                 {initials}
               </div>
             </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-8 lg:p-12">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 xl:p-12">
           <Outlet />
         </main>
 

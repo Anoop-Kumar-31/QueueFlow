@@ -88,9 +88,9 @@ const TasksBoard = () => {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">My Task Queue</h1>
-        <p className="text-slate-500 dark:text-slate-400">Drag and drop tasks to prioritize your execution order.</p>
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-1">My Task Queue</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base">Drag and drop tasks to prioritize your execution order.</p>
       </div>
 
       {
@@ -126,36 +126,36 @@ const TasksBoard = () => {
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
                                   {...provided.dragHandleProps}
-                                  className={`bg-white dark:bg-slate-900 border rounded-xl p-5 flex items-center justify-between transition-all ${isDraggingOutside
+                                  className={`bg-white dark:bg-slate-900 border rounded-xl py-3 px-2 sm:p-5 flex flex-row sm:items-center justify-between gap-3 transition-all ${isDraggingOutside
                                     ? 'border-red-500 shadow-2xl ring-2 ring-red-500/30 z-50 bg-red-50 dark:bg-red-900/20'
                                     : snapshot.isDragging
                                       ? 'shadow-xl ring-2 ring-primary border-transparent z-50'
                                       : 'border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700'
                                     }`}
                                 >
-                                  <div className="flex items-center gap-4 flex-1">
-                                    <div className="text-slate-400 cursor-grab active:cursor-grabbing hover:text-slate-600 transition-colors">
+                                  <div className="flex items-center gap-1 sm:gap-4 flex-1 min-w-0">
+                                    <div className="text-slate-400 cursor-grab active:cursor-grabbing hover:text-slate-600 transition-colors shrink-0">
                                       {/* Grip icon */}
-                                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1" /><circle cx="9" cy="5" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="15" cy="19" r="1" /></svg>
+                                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1" /><circle cx="9" cy="5" r="1" /><circle cx="9" cy="19" r="1" /><circle cx="15" cy="12" r="1" /><circle cx="15" cy="5" r="1" /><circle cx="15" cy="19" r="1" /></svg>
                                     </div>
 
-                                    <div className="flex items-center gap-5">
-                                      <span className="text-2xl font-bold text-slate-400 uppercase tracking-wide">#{index + 1}</span>
-                                      <div>
-                                        <div className="flex items-center gap-2 mb-1">
-                                          <h3 className="font-semibold text-slate-900 dark:text-white">{task.title}</h3>
-                                          <div className={`rounded-full w-2 h-2 cursor-help ${task.priority === 1 ? 'bg-red-500' : task.priority === 2 ? 'bg-yellow-500' : 'bg-green-500'}`} title={task.priority === 1 ? 'High Priority task' : task.priority === 2 ? 'Medium Priority task' : 'Low Priority task'} />
+                                    <div className="flex items-center gap-3 sm:gap-5 min-w-0">
+                                      <span className="text-xs sm:text-xl md:text-2xl font-bold text-slate-400 uppercase tracking-wide shrink-0">#{index + 1}</span>
+                                      <div className="min-w-0">
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                          <h3 className="font-semibold text-slate-900 dark:text-white truncate text-sm sm:text-base">{task.title}</h3>
+                                          <div className={`rounded-full w-2 h-2 shrink-0 cursor-help ${task.priority === 1 ? 'bg-red-500' : task.priority === 2 ? 'bg-yellow-500' : 'bg-green-500'}`} title={task.priority === 1 ? 'High Priority task' : task.priority === 2 ? 'Medium Priority task' : 'Low Priority task'} />
                                         </div>
                                         <p className="text-xs text-slate-500 font-medium line-clamp-1">{task.description}</p>
                                       </div>
                                     </div>
                                   </div>
 
-                                  <div className="flex items-center gap-3">
+                                  <div className="flex items-center gap-2 shrink-0 md:pl-8 sm:pl-0">
                                     <select
                                       value={task.status}
                                       onChange={(e) => handleStatusChange(task.id, e.target.value)}
-                                      className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-sm rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-primary/20 appearance-none font-medium flex items-center gap-2"
+                                      className="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm rounded-lg px-2 py-1.5 outline-none focus:ring-2 focus:ring-primary/20 appearance-none font-medium"
                                       onClick={(e) => e.stopPropagation()}
                                     >
                                       <option value="PENDING">Pending</option>
@@ -163,7 +163,7 @@ const TasksBoard = () => {
                                       <option value="REVIEW">In Review</option>
                                       <option value="DONE">Completed</option>
                                     </select>
-                                    <div className="w-8 h-8 flex items-center justify-center bg-slate-50 dark:bg-slate-800 rounded-full border border-slate-100 dark:border-slate-700">
+                                    <div className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-slate-50 dark:bg-slate-800 rounded-full border border-slate-100 dark:border-slate-700">
                                       {statusIcons[task.status]}
                                     </div>
                                   </div>
