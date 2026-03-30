@@ -105,7 +105,7 @@ const tasksSlice = createSlice({
     socketTaskUpdated: (state, action) => {
       const index = state.items.findIndex(t => t.id === action.payload.id);
       if (index !== -1) {
-        state.items[index] = action.payload;
+        state.items[index] = { ...state.items[index], ...action.payload };
       }
     },
     socketTaskDeleted: (state, action) => {
