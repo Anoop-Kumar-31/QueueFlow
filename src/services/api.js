@@ -139,3 +139,24 @@ export const deleteTaskAPI = async (taskId) => {
     method: 'DELETE'
   });
 };
+
+export const verifyPasswordAPI = async (password) => {
+  return await fetchAPI('/auth/verify-password', {
+    method: 'POST',
+    body: JSON.stringify({ password })
+  });
+};
+
+export const updateProfileAPI = async ({ name, email }) => {
+  return await fetchAPI('/auth/profile', {
+    method: 'PUT',
+    body: JSON.stringify({ name, email })
+  });
+};
+
+export const changePasswordAPI = async ({ oldPassword, newPassword }) => {
+  return await fetchAPI('/auth/change-password', {
+    method: 'PUT',
+    body: JSON.stringify({ oldPassword, newPassword })
+  });
+};

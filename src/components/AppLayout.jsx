@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, Link } from 'react-router-dom';
+
 import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../features/authSlice';
 
 import { initSocket, disconnectSocket } from '../services/socket';
 import { socketTaskCreated, socketTaskUpdated, socketTaskDeleted, socketQueueReordered, socketNewStickyNote, socketNoteUpdated, socketNoteDeleted } from '../features/tasksSlice';
@@ -10,7 +12,7 @@ import AppSidebar from './layout/AppSidebar';
 import SearchBar from './layout/SearchBar';
 import NotificationBell from './layout/NotificationBell';
 import ThemeToggle from './layout/ThemeToggle';
-import { Menu } from 'lucide-react';
+import { Menu, ChevronDown, ChevronUp, User, LogOut } from 'lucide-react';
 
 const AppLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -18,6 +20,7 @@ const AppLayout = () => {
   const [notifications, setNotifications] = useState([]);
   const [notifOpen, setNotifOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
   const dispatch = useDispatch();
   const { user } = useSelector((s) => s.auth);
@@ -118,7 +121,22 @@ const AppLayout = () => {
             />
 
             {/* User chip */}
-            <div className="flex items-center gap-2">
+            <div className={`relative flex items-center gap-2 select-none hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl p-2 transition-colors cursor-pointer ${profileDropdownOpen ? 'bg-slate-100 dark:bg-slate-800/50' : ''}`} onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}>
+              {
+                profileDropdownOpen && (
+                  <div className="absolute top-16 right-0 w-full bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-2 flex flex-col gap-2">
+
+                    <Link to="/profile" className="flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl p-2 transition-colors cursor-pointer" onClick={() => { setProfileDropdownOpen(false); }}>
+                      <User size={20} />
+                      <div className="text-sm font-semibold text-slate-900 dark:text-white truncate max-w-[140px]">Profile</div>
+                    </Link>
+                    <div className="flex items-center gap-2 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-xl p-2 transition-colors cursor-pointer text-slate-900 dark:text-red-500" onClick={() => { setProfileDropdownOpen(false); dispatch(logout()); }}>
+                      <LogOut size={20} />
+                      <div className="text-sm font-semibold truncate max-w-[140px]">Logout</div>
+                    </div>
+                  </div>
+                )
+              }
               {/* Show name/email only on md+ */}
               <div className="hidden md:block text-right">
                 <div className="text-sm font-semibold text-slate-900 dark:text-white truncate max-w-[140px]">{user?.name}</div>
@@ -127,6 +145,7 @@ const AppLayout = () => {
               <div className="w-9 h-9 rounded-full bg-linear-to-br from-[#482acc] to-[#8b5cf6] text-white flex items-center justify-center font-bold text-sm shadow-lg shadow-primary/30 shrink-0">
                 {initials}
               </div>
+              {profileDropdownOpen ? <ChevronUp size={20} className='text-slate-500' /> : <ChevronDown size={20} className='text-slate-500' />}
             </div>
           </div>
         </header>

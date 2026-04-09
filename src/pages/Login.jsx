@@ -62,11 +62,10 @@ const Login = () => {
 
         <div className="w-full max-w-[420px] relative z-10">
           {/* Mobile logo */}
-          <div className="lg:hidden flex items-center gap-3 mb-10">
-            <div className="w-9 h-9 rounded-xl bg-linear-to-br from-violet-600 to-indigo-600 flex items-center justify-center">
-              <Activity size={18} className="text-white" />
-            </div>
-            <span className="text-white font-black text-xl">QueueFlow</span>
+
+          <div className="lg:hidden flex items-center gap-3 mb-8 justify-left ">
+            <img src="/logo.png" alt="logo" className="w-20 h-20" />
+            <span className="text-white font-black text-4xl">QueueFlow</span>
           </div>
 
           <div className="mb-8">

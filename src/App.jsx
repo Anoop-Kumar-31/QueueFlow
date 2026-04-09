@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchUser } from './features/authSlice';
 
+import Profile from './pages/Profile';
+
 import Loading from './components/Loading';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -67,6 +69,7 @@ function App() {
           <Route path="tasks" element={<TasksBoard />} />
           <Route path="project/:projectId" element={<ProjectBoard />} />
           <Route path="project/:projectId/analytics" element={<AnalyticsDashboard />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
     </BrowserRouter>
