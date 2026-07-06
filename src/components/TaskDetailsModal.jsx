@@ -1,14 +1,47 @@
-import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { X, Send, User, Clock, Edit2, Trash2 } from 'lucide-react';
-import { createStickyNoteAPI, updateStickyNoteAPI, deleteStickyNoteAPI } from '../services/api';
+import { useState, useEffect, useCallback } from 'react';
+import { useSelector } from 'react-redux';
+import { X, Send, User, Clock, Edit2, Trash2, Loader2 } from 'lucide-react';
+import { createStickyNoteAPI, updateStickyNoteAPI, deleteStickyNoteAPI, fetchTaskNotesAPI } from '../services/api';
 
 const TaskDetailsModal = ({ isOpen, onClose, task, projectId, isPM, onEditClick, onDeleteClick }) => {
   const [noteText, setNoteText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [editingText, setEditingText] = useState('');
+
+  // Notes are fetched on-demand (nested resource: GET /tasks/:taskId/notes)
+  const [notes, setNotes] = useState([]);
+  const [notesLoading, setNotesLoading] = useState(false);
+  const [notesPage, setNotesPage] = useState(1);
+  const [notesPagination, setNotesPagination] = useState(null);
+
   const { user } = useSelector(state => state.auth);
+
+  const loadNotes = useCallback(async (taskId, page = 1, replace = false) => {
+    setNotesLoading(true);
+    try {
+      const res = await fetchTaskNotesAPI(taskId, { page, limit: 20 });
+      if (res.success) {
+        setNotes(prev => replace ? res.data : [...prev, ...res.data]);
+        setNotesPagination(res.pagination);
+        setNotesPage(res.pagination.page);
+      }
+    } catch (err) {
+      console.error('Failed to load notes:', err);
+    } finally {
+      setNotesLoading(false);
+    }
+  }, []);
+
+  // Fetch notes when modal opens or task changes
+  useEffect(() => {
+    if (isOpen && task?.id) {
+      setNotes([]);
+      setNotesPage(1);
+      setNotesPagination(null);
+      loadNotes(task.id, 1, true);
+    }
+  }, [isOpen, task?.id, loadNotes]);
 
   const getPriorityColor = (priority) => {
     switch (priority) {
@@ -19,8 +52,6 @@ const TaskDetailsModal = ({ isOpen, onClose, task, projectId, isPM, onEditClick,
     }
   };
 
-  console.log(task)
-
   if (!isOpen || !task) return null;
 
   const handleAddNote = async (e) => {
@@ -29,12 +60,36 @@ const TaskDetailsModal = ({ isOpen, onClose, task, projectId, isPM, onEditClick,
 
     setIsSubmitting(true);
     try {
-      await createStickyNoteAPI(task.id, noteText);
+      const note = await createStickyNoteAPI(task.id, noteText);
+      // Prepend to the local notes list (server also broadcasts via socket)
+      setNotes(prev => [note, ...prev]);
+      setNotesPagination(prev => prev ? { ...prev, total: prev.total + 1 } : null);
       setNoteText('');
     } catch (err) {
       console.error('Failed to add note:', err);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteNote = async (noteId) => {
+    try {
+      await deleteStickyNoteAPI(noteId);
+      setNotes(prev => prev.filter(n => n.id !== noteId));
+      setNotesPagination(prev => prev ? { ...prev, total: Math.max(0, prev.total - 1) } : null);
+    } catch (err) {
+      console.error('Failed delete', err);
+    }
+  };
+
+  const handleUpdateNote = async (noteId) => {
+    if (!editingText.trim()) return;
+    try {
+      const updated = await updateStickyNoteAPI(noteId, editingText);
+      setNotes(prev => prev.map(n => n.id === noteId ? { ...n, text: updated.text ?? editingText } : n));
+      setEditingNoteId(null);
+    } catch (err) {
+      console.error('Failed update', err);
     }
   };
 
@@ -66,6 +121,7 @@ const TaskDetailsModal = ({ isOpen, onClose, task, projectId, isPM, onEditClick,
           <div className="flex items-center gap-2">
             {isPM && (
               [<button
+                key="edit"
                 onClick={onEditClick}
                 className="text-slate-400 hover:text-primary hover:bg-primary/10 transition-all cursor-pointer bg-slate-100 dark:bg-slate-800 p-2 rounded-full"
                 title="Edit Task"
@@ -73,6 +129,7 @@ const TaskDetailsModal = ({ isOpen, onClose, task, projectId, isPM, onEditClick,
                 <Edit2 size={20} />
               </button>,
               <button
+                key="delete"
                 onClick={onDeleteClick}
                 className="text-red-500 bg-slate-100 dark:bg-slate-800 hover:bg-red-500/10 dark:hover:bg-red-800/30 p-2 rounded-full transition-all cursor-pointer"
               >
@@ -116,56 +173,68 @@ const TaskDetailsModal = ({ isOpen, onClose, task, projectId, isPM, onEditClick,
             </div>
           </div>
 
+          {/* Notes Section — loaded on demand */}
           <div>
-            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-200 dark:border-slate-800 pb-2">
-              Sticky Notes ({task.sticky_notes?.length || 0})
+            <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-200 dark:border-slate-800 pb-2 flex items-center gap-2">
+              Sticky Notes
+              {notesPagination && (
+                <span className="text-slate-500 font-normal normal-case tracking-normal">({notesPagination.total})</span>
+              )}
             </h4>
 
             <div className="space-y-4 mb-2">
-              {task.sticky_notes?.map(note => (
-                <div key={note.id} className="bg-[#FFF9C4] dark:bg-amber-500/10 p-4 rounded-xl border border-[#FFF59D] dark:border-amber-500/20 shadow-sm relative overflow-hidden group">
-                  <div className="absolute top-0 left-0 w-1 h-full bg-amber-400 opacity-50"></div>
-
-                  {user?.id === note.user_id && editingNoteId !== note.id && (
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                      <button onClick={() => { setEditingNoteId(note.id); setEditingText(note.text); }} className="text-amber-600 hover:text-amber-800"><Edit2 size={13} /></button>
-                      <button onClick={async () => {
-                        try {
-                          await deleteStickyNoteAPI(note.id);
-                        } catch (err) { console.error('Failed delete', err); }
-                      }} className="text-red-500 hover:text-red-700"><Trash2 size={13} /></button>
-                    </div>
-                  )}
-
-                  {editingNoteId === note.id ? (
-                    <div className="flex flex-col gap-2 w-full pl-2">
-                      <textarea className="w-full bg-white/60 dark:bg-black/20 focus:ring-1 focus:ring-amber-400 outline-none text-slate-900 dark:text-amber-50 p-2 rounded text-sm min-h-[60px]" value={editingText} onChange={(e) => setEditingText(e.target.value)} />
-                      <div className="flex gap-2 justify-end mt-1">
-                        <button onClick={() => setEditingNoteId(null)} className="text-xs text-slate-500 font-bold px-2 py-1">Cancel</button>
-                        <button onClick={async () => {
-                          if (!editingText.trim()) return;
-                          try { await updateStickyNoteAPI(note.id, editingText); setEditingNoteId(null); }
-                          catch (err) { console.error('Failed update', err); }
-                        }} className="text-xs bg-amber-500 text-white rounded font-bold px-3 py-1 shadow-sm">Save</button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex items-start justify-between gap-4">
-                        <p className="text-slate-800 dark:text-amber-100/90 text-sm leading-relaxed whitespace-pre-wrap wrap-break-word">{note.text}</p>
-                      </div>
-                      <div className="mt-3 flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-amber-500/70">
-                        <span>{note.author?.name || 'User'}</span>
-                        <span>{new Date(note.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' })}</span>
-                      </div>
-                    </>
-                  )}
+              {notesLoading && notes.length === 0 ? (
+                <div className="flex items-center justify-center py-8 text-slate-400 gap-2">
+                  <Loader2 size={16} className="animate-spin" /> Loading notes...
                 </div>
-              ))}
-              {(!task.sticky_notes || task.sticky_notes.length === 0) && (
+              ) : notes.length === 0 ? (
                 <div className="text-center py-6 text-sm text-slate-400 italic">
                   No notes yet. Be the first to add one!
                 </div>
+              ) : (
+                notes.map(note => (
+                  <div key={note.id} className="bg-[#FFF9C4] dark:bg-amber-500/10 p-4 rounded-xl border border-[#FFF59D] dark:border-amber-500/20 shadow-sm relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-amber-400 opacity-50"></div>
+
+                    {user?.id === note.user_id && editingNoteId !== note.id && (
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                        <button onClick={() => { setEditingNoteId(note.id); setEditingText(note.text); }} className="text-amber-600 hover:text-amber-800"><Edit2 size={13} /></button>
+                        <button onClick={() => handleDeleteNote(note.id)} className="text-red-500 hover:text-red-700"><Trash2 size={13} /></button>
+                      </div>
+                    )}
+
+                    {editingNoteId === note.id ? (
+                      <div className="flex flex-col gap-2 w-full pl-2">
+                        <textarea className="w-full bg-white/60 dark:bg-black/20 focus:ring-1 focus:ring-amber-400 outline-none text-slate-900 dark:text-amber-50 p-2 rounded text-sm min-h-[60px]" value={editingText} onChange={(e) => setEditingText(e.target.value)} />
+                        <div className="flex gap-2 justify-end mt-1">
+                          <button onClick={() => setEditingNoteId(null)} className="text-xs text-slate-500 font-bold px-2 py-1">Cancel</button>
+                          <button onClick={() => handleUpdateNote(note.id)} className="text-xs bg-amber-500 text-white rounded font-bold px-3 py-1 shadow-sm">Save</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-start justify-between gap-4">
+                          <p className="text-slate-800 dark:text-amber-100/90 text-sm leading-relaxed whitespace-pre-wrap wrap-break-word">{note.text}</p>
+                        </div>
+                        <div className="mt-3 flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-amber-500/70">
+                          <span>{note.author?.name || 'User'}</span>
+                          <span>{new Date(note.created_at).toLocaleString([], { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' })}</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))
+              )}
+
+              {/* Load More Notes */}
+              {notesPagination?.hasNextPage && (
+                <button
+                  onClick={() => loadNotes(task.id, notesPage + 1, false)}
+                  disabled={notesLoading}
+                  className="w-full py-2 text-sm font-semibold text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300 flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
+                >
+                  {notesLoading ? <><Loader2 size={14} className="animate-spin" /> Loading...</> : 'Load more notes'}
+                </button>
               )}
             </div>
           </div>

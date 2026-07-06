@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { initSocket } from '../services/socket';
 import { fetchProjectActivitiesAPI } from '../services/api';
-import { Clock, PlusCircle, CheckCircle, RefreshCw, LogIn, Trash2, StickyNote, Folder, UserRoundMinus, LogOut } from 'lucide-react';
+import { Clock, PlusCircle, CheckCircle, RefreshCw, LogIn, Trash2, StickyNote, Folder, UserRoundMinus, LogOut, ChevronDown, Loader2 } from 'lucide-react';
 
 const formatTimeAgo = (dateString) => {
   const diff = new Date() - new Date(dateString);
@@ -29,26 +29,41 @@ const getActionIcon = (action) => {
   }
 };
 
+const ACTIVITIES_PER_PAGE = 20;
+
 const ActivityTimeline = ({ projectId }) => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [pagination, setPagination] = useState(null);
+  const [page, setPage] = useState(1);
+
+  const loadActivities = useCallback(async (pageNum, replace = false) => {
+    if (pageNum === 1) setLoading(true); else setLoadingMore(true);
+    try {
+      const res = await fetchProjectActivitiesAPI(projectId, { page: pageNum, limit: ACTIVITIES_PER_PAGE });
+      if (res.success) {
+        setActivities(prev => replace ? res.data : [...prev, ...res.data]);
+        setPagination(res.pagination);
+        setPage(res.pagination.page);
+      }
+    } catch (err) {
+      console.error("Failed to load activities", err);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, [projectId]);
 
   useEffect(() => {
     if (!projectId) return;
 
-    fetchProjectActivitiesAPI(projectId)
-      .then(res => {
-        if (res.success) setActivities(res.data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Failed to load activities", err);
-        setLoading(false);
-      });
+    loadActivities(1, true);
 
     const socket = initSocket();
     const handleNewActivity = (activity) => {
-      setActivities(prev => [activity, ...prev].slice(0, 50));
+      setActivities(prev => [activity, ...prev]);
+      setPagination(prev => prev ? { ...prev, total: prev.total + 1 } : null);
     };
 
     socket.on('new_activity', handleNewActivity);
@@ -56,7 +71,7 @@ const ActivityTimeline = ({ projectId }) => {
     return () => {
       socket.off('new_activity', handleNewActivity);
     };
-  }, [projectId]);
+  }, [projectId, loadActivities]);
 
   if (loading) {
     return (
@@ -82,47 +97,62 @@ const ActivityTimeline = ({ projectId }) => {
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden flex flex-col h-full max-h-[800px] shadow-sm">
-      <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 bg-slate-50 dark:bg-slate-900/50">
-        <Clock size={16} className="text-slate-500" />
-        <h3 className="font-semibold text-slate-900 dark:text-white">Activity Log</h3>
-      </div>
-      {
-        loading ? (
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            <div className="text-sm text-slate-400 animate-pulse p-4">Loading timeline...</div>
-          </div>
-        ) : (
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {activities.length === 0 ? (
-              <div className="text-center text-sm text-slate-500 py-8">No recent activity</div>
-            ) : (
-              <div className="relative before:absolute before:inset-y-0 before:left-3.5 before:w-px before:bg-slate-200 dark:before:bg-slate-800">
-                {activities.map((activity, idx) => (
-                  <div key={activity.id} className="relative flex gap-4 mb-5 last:mb-0 group">
-
-                    <div className="relative z-10 w-7 h-7 rounded-full bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 shadow-sm group-hover:border-primary/50 transition-colors p-0 mt-3">
-                      {getActionIcon(activity.action)}
-                    </div>
-
-                    <div className="flex-1 pt-1 pb-1 hover:bg-primary/10 dark:group-hover:bg-primary/10 p-2 rounded-lg">
-                      <div className="flex items-baseline justify-between gap-2 mb-1">
-                        <span className="font-semibold text-sm text-slate-900 dark:text-white">
-                          {activity.user?.name || 'Unknown User'}
-                        </span>
-                        <span className="text-xs text-slate-400 whitespace-nowrap">
-                          {formatTimeAgo(activity.created_at)}
-                        </span>
-                      </div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400">
-                        {activity.details}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+      <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/50">
+        <div className="flex items-center gap-2">
+          <Clock size={16} className="text-slate-500" />
+          <h3 className="font-semibold text-slate-900 dark:text-white">Activity Log</h3>
+        </div>
+        {pagination && (
+          <span className="text-xs text-slate-400 font-medium">{activities.length}/{pagination.total}</span>
         )}
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {activities.length === 0 ? (
+          <div className="text-center text-sm text-slate-500 py-8">No recent activity</div>
+        ) : (
+          <>
+            <div className="relative before:absolute before:inset-y-0 before:left-3.5 before:w-px before:bg-slate-200 dark:before:bg-slate-800">
+              {activities.map((activity) => (
+                <div key={activity.id} className="relative flex gap-4 mb-5 last:mb-0 group">
+
+                  <div className="relative z-10 w-7 h-7 rounded-full bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 flex items-center justify-center shrink-0 shadow-sm group-hover:border-primary/50 transition-colors p-0 mt-3">
+                    {getActionIcon(activity.action)}
+                  </div>
+
+                  <div className="flex-1 pt-1 pb-1 hover:bg-primary/10 dark:group-hover:bg-primary/10 p-2 rounded-lg">
+                    <div className="flex items-baseline justify-between gap-2 mb-1">
+                      <span className="font-semibold text-sm text-slate-900 dark:text-white">
+                        {activity.user?.name || 'Unknown User'}
+                      </span>
+                      <span className="text-xs text-slate-400 whitespace-nowrap">
+                        {formatTimeAgo(activity.created_at)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      {activity.details}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Load More Activities */}
+            {pagination?.hasNextPage && (
+              <button
+                onClick={() => loadActivities(page + 1, false)}
+                disabled={loadingMore}
+                className="w-full py-2 text-sm font-semibold text-slate-500 hover:text-primary flex items-center justify-center gap-2 disabled:opacity-50 transition-colors border-t border-slate-100 dark:border-slate-800 pt-3 mt-2"
+              >
+                {loadingMore
+                  ? <><Loader2 size={14} className="animate-spin" /> Loading...</>
+                  : <><ChevronDown size={14} /> Load older activity</>
+                }
+              </button>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

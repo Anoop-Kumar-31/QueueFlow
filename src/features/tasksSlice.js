@@ -1,11 +1,13 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { fetchAPI } from '../services/api';
+import { fetchAPI, fetchProjectTasksAPI, fetchUserQueueAPI } from '../services/api';
+
+// ─── Async Thunks ─────────────────────────────────────────────────────────────
 
 export const fetchUserQueue = createAsyncThunk(
   'tasks/fetchUserQueue',
-  async (userId, { rejectWithValue }) => {
+  async ({ userId, page = 1, limit = 20 }, { rejectWithValue }) => {
     try {
-      return await fetchAPI(`/tasks/queue/${userId}`);
+      return await fetchUserQueueAPI(userId, { page, limit });
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -14,9 +16,9 @@ export const fetchUserQueue = createAsyncThunk(
 
 export const fetchProjectTasks = createAsyncThunk(
   'tasks/fetchProjectTasks',
-  async (projectId, { rejectWithValue }) => {
+  async ({ projectId, page = 1, limit = 30 }, { rejectWithValue }) => {
     try {
-      return await fetchAPI(`/tasks/project/${projectId}`);
+      return await fetchProjectTasksAPI(projectId, { page, limit });
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -65,7 +67,6 @@ export const updateTaskData = createAsyncThunk(
   }
 );
 
-
 export const reorderQueue = createAsyncThunk(
   'tasks/reorderQueue',
   async (tasks, { rejectWithValue }) => {
@@ -81,14 +82,28 @@ export const reorderQueue = createAsyncThunk(
   }
 );
 
+// ─── Slice ─────────────────────────────────────────────────────────────────────
+
 const tasksSlice = createSlice({
   name: 'tasks',
   initialState: {
     items: [],
     loading: false,
-    error: null
+    error: null,
+    // Pagination state
+    pagination: {
+      page: 1,
+      limit: 30,
+      total: 0,
+      totalPages: 1,
+      hasNextPage: false
+    }
   },
   reducers: {
+    clearTasks: (state) => {
+      state.items = [];
+      state.pagination = { page: 1, limit: 30, total: 0, totalPages: 1, hasNextPage: false };
+    },
     optimisticReorder: (state, action) => {
       state.items = action.payload; // temporary UI update before server confirms
     },
@@ -100,6 +115,7 @@ const tasksSlice = createSlice({
       // Prevent duplicates safely since Pro. Manager and user events fire asynchronously
       if (!state.items.find(t => t.id === action.payload.id)) {
         state.items.push(action.payload);
+        state.pagination.total += 1;
       }
     },
     socketTaskUpdated: (state, action) => {
@@ -110,6 +126,7 @@ const tasksSlice = createSlice({
     },
     socketTaskDeleted: (state, action) => {
       state.items = state.items.filter(t => t.id !== action.payload);
+      if (state.pagination.total > 0) state.pagination.total -= 1;
     },
     socketQueueReordered: (state, action) => {
        // Only process non-local updates in background
@@ -117,61 +134,69 @@ const tasksSlice = createSlice({
          const task = state.items.find(t => t.id === taskUpdate.id);
          if (task) task.position = taskUpdate.position;
        });
-       state.items.sort((a,b) => a.position - b.position);
+       state.items.sort((a, b) => a.position - b.position);
     },
+    // Note socket events — update _count.sticky_notes on the task card
     socketNewStickyNote: (state, action) => {
       const note = action.payload;
-      const idx = state.items.findIndex(t => t.id === note.task_id);
-      if (idx !== -1) {
-        if (!state.items[idx].sticky_notes) {
-          state.items[idx].sticky_notes = [];
-        }
-        state.items[idx].sticky_notes.push(note);
-      }
-    },
-    socketNoteUpdated: (state, action) => {
-      const updatedNote = action.payload;
-      const taskIndex = state.items.findIndex(t => t.id === updatedNote.task_id);
-      if (taskIndex !== -1 && state.items[taskIndex].sticky_notes) {
-        const noteIndex = state.items[taskIndex].sticky_notes.findIndex(n => n.id === updatedNote.id);
-        if (noteIndex !== -1) {
-          state.items[taskIndex].sticky_notes[noteIndex] = updatedNote;
-        }
+      const task = state.items.find(t => t.id === note.task_id);
+      if (task) {
+        if (!task._count) task._count = { sticky_notes: 0 };
+        task._count.sticky_notes += 1;
       }
     },
     socketNoteDeleted: (state, action) => {
-      const { noteId, taskId } = action.payload;
-      const taskIndex = state.items.findIndex(t => t.id === taskId);
-      if (taskIndex !== -1 && state.items[taskIndex].sticky_notes) {
-        state.items[taskIndex].sticky_notes = state.items[taskIndex].sticky_notes.filter(n => n.id !== noteId);
+      const { taskId } = action.payload;
+      const task = state.items.find(t => t.id === taskId);
+      if (task && task._count?.sticky_notes > 0) {
+        task._count.sticky_notes -= 1;
       }
     }
   },
   extraReducers: (builder) => {
     builder
+      // fetchUserQueue
       .addCase(fetchUserQueue.pending, (state) => { state.loading = true; state.error = null; state.items = []; })
       .addCase(fetchUserQueue.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload;
+        state.items = action.payload.data ?? action.payload;
+        state.pagination = action.payload.pagination ?? state.pagination;
       })
       .addCase(fetchUserQueue.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
+      // fetchProjectTasks
       .addCase(fetchProjectTasks.pending, (state) => { state.loading = true; state.error = null; state.items = []; })
       .addCase(fetchProjectTasks.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload;
+        state.items = action.payload.data ?? action.payload;
+        state.pagination = action.payload.pagination ?? state.pagination;
       })
       .addCase(fetchProjectTasks.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
+      // createTask — server broadcasts via socket; no manual push needed but keep for safety
       .addCase(createTask.fulfilled, (state, action) => {
-        state.items.push(action.payload);
+        if (!state.items.find(t => t.id === action.payload.id)) {
+          state.items.push(action.payload);
+          state.pagination.total += 1;
+        }
       });
   }
 });
 
-export const { optimisticReorder, optimisticUpdateStatus, socketTaskCreated, socketTaskUpdated, socketTaskDeleted, socketQueueReordered, socketNewStickyNote, socketNoteUpdated, socketNoteDeleted } = tasksSlice.actions;
+export const {
+  clearTasks,
+  optimisticReorder,
+  optimisticUpdateStatus,
+  socketTaskCreated,
+  socketTaskUpdated,
+  socketTaskDeleted,
+  socketQueueReordered,
+  socketNewStickyNote,
+  socketNoteDeleted
+} = tasksSlice.actions;
+
 export default tasksSlice.reducer;

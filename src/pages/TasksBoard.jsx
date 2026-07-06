@@ -1,8 +1,10 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { fetchUserQueue, optimisticReorder, reorderQueue, optimisticUpdateStatus, updateTaskStatus } from '../features/tasksSlice';
-import { Clock, CheckCircle, Circle, PlayCircle } from 'lucide-react';
+import { Clock, CheckCircle, Circle, PlayCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const QUEUE_PER_PAGE = 20;
 
 const statusIcons = {
   PENDING: <Circle size={16} className="text-slate-400" />,
@@ -14,13 +16,14 @@ const statusIcons = {
 const TasksBoard = () => {
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.auth);
-  const { items: tasks, loading } = useSelector(state => state.tasks);
+  const { items: tasks, loading, pagination } = useSelector(state => state.tasks);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (user?.id) {
-      dispatch(fetchUserQueue(user.id));
+      dispatch(fetchUserQueue({ userId: user.id, page, limit: QUEUE_PER_PAGE }));
     }
-  }, [dispatch, user]);
+  }, [dispatch, user, page]);
 
   const groupedTasks = useMemo(() => {
     return tasks.reduce((acc, task) => {
@@ -182,6 +185,30 @@ const TasksBoard = () => {
           </DragDropContext>
         )
       }
+
+      {/* Pagination Controls */}
+      {!loading && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-8">
+          <button
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          >
+            <ChevronLeft size={16} /> Prev
+          </button>
+          <span className="text-sm font-medium text-slate-500">
+            Page {page} of {pagination.totalPages}
+            <span className="ml-2 text-slate-400">({pagination.total} tasks)</span>
+          </span>
+          <button
+            onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
+            disabled={!pagination.hasNextPage}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          >
+            Next <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

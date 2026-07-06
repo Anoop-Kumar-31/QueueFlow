@@ -82,6 +82,32 @@ export const fetchAPI = async (endpoint, options = {}) => {
   return data;
 };
 
+// Build a query string from an object, filtering out undefined/null values
+const buildQuery = (params = {}) => {
+  const qs = Object.entries(params)
+    .filter(([, v]) => v !== undefined && v !== null)
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+    .join('&');
+  return qs ? `?${qs}` : '';
+};
+
+// ─── Tasks ───────────────────────────────────────────────────────────────────
+
+// GET /tasks/project/:projectId — no sticky_notes, supports pagination
+export const fetchProjectTasksAPI = async (projectId, { page = 1, limit = 30 } = {}) => {
+  return await fetchAPI(`/tasks/project/${projectId}${buildQuery({ page, limit })}`);
+};
+
+// GET /tasks/queue/:userId — no sticky_notes, supports pagination
+export const fetchUserQueueAPI = async (userId, { page = 1, limit = 20 } = {}) => {
+  return await fetchAPI(`/tasks/queue/${userId}${buildQuery({ page, limit })}`);
+};
+
+// GET /tasks/:taskId/notes — nested resource, loaded on demand
+export const fetchTaskNotesAPI = async (taskId, { page = 1, limit = 20 } = {}) => {
+  return await fetchAPI(`/tasks/${taskId}/notes${buildQuery({ page, limit })}`);
+};
+
 export const generateInviteCodeAPI = async (projectId, expiresInHours) => {
   return await fetchAPI(`/projects/${projectId}/generate-invite`, {
     method: 'POST',
@@ -120,8 +146,9 @@ export const fetchProjectMembersAPI = async (projectId) => {
   return await fetchAPI(`/projects/${projectId}/members`);
 };
 
-export const fetchProjectActivitiesAPI = async (projectId) => {
-  return await fetchAPI(`/projects/${projectId}/activities`);
+// GET /projects/:id/activities — supports pagination
+export const fetchProjectActivitiesAPI = async (projectId, { page = 1, limit = 20 } = {}) => {
+  return await fetchAPI(`/projects/${projectId}/activities${buildQuery({ page, limit })}`);
 };
 
 export const removeProjectMemberAPI = async (projectId, userId) => {

@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../features/authSlice';
 
 import { initSocket, disconnectSocket } from '../services/socket';
-import { socketTaskCreated, socketTaskUpdated, socketTaskDeleted, socketQueueReordered, socketNewStickyNote, socketNoteUpdated, socketNoteDeleted } from '../features/tasksSlice';
+import { socketTaskCreated, socketTaskUpdated, socketTaskDeleted, socketQueueReordered, socketNewStickyNote, socketNoteDeleted } from '../features/tasksSlice';
 import { setOnlineUsers } from '../features/authSlice';
 
 import AppSidebar from './layout/AppSidebar';
@@ -49,7 +49,6 @@ const AppLayout = () => {
     socket.on('queue_reordered', (arr) => dispatch(socketQueueReordered(arr)));
     socket.on('online_users', (ids) => dispatch(setOnlineUsers(ids)));
     socket.on('new_sticky_note', (n) => dispatch(socketNewStickyNote(n)));
-    socket.on('note_updated', (n) => dispatch(socketNoteUpdated(n)));
     socket.on('note_deleted', (p) => dispatch(socketNoteDeleted(p)));
 
     // Real-time notification feed (ignore own actions)
@@ -61,7 +60,7 @@ const AppLayout = () => {
 
     return () => {
       ['task_created', 'task_updated', 'task_deleted', 'queue_reordered',
-        'online_users', 'new_sticky_note', 'note_updated', 'note_deleted', 'new_activity']
+        'online_users', 'new_sticky_note', 'note_deleted', 'new_activity']
         .forEach(e => socket.off(e));
     };
   }, [user?.id, dispatch]);
@@ -124,13 +123,13 @@ const AppLayout = () => {
             <div className={`relative flex items-center gap-2 select-none hover:bg-slate-100 dark:hover:bg-slate-800/50 rounded-xl p-2 transition-colors cursor-pointer ${profileDropdownOpen ? 'bg-slate-100 dark:bg-slate-800/50' : ''}`} onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}>
               {
                 profileDropdownOpen && (
-                  <div className="absolute top-16 right-0 w-full bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-2 flex flex-col gap-2">
+                  <div className="absolute top-16 right-0 min-w-40 w-full bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-2 flex flex-col gap-2">
 
                     <Link to="/profile" className="flex items-center gap-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl p-2 transition-colors cursor-pointer" onClick={() => { setProfileDropdownOpen(false); }}>
                       <User size={20} />
                       <div className="text-sm font-semibold text-slate-900 dark:text-white truncate max-w-[140px]">Profile</div>
                     </Link>
-                    <div className="flex items-center gap-2 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-xl p-2 transition-colors cursor-pointer text-slate-900 dark:text-red-500" onClick={() => { setProfileDropdownOpen(false); dispatch(logout()); }}>
+                    <div className="flex items-center gap-2 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-xl p-2 transition-colors cursor-pointer text-red-800 dark:text-red-500" onClick={() => { setProfileDropdownOpen(false); dispatch(logout()); }}>
                       <LogOut size={20} />
                       <div className="text-sm font-semibold truncate max-w-[140px]">Logout</div>
                     </div>

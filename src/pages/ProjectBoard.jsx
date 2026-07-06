@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProjectTasks } from '../features/tasksSlice';
 import { fetchProjects } from '../features/projectSlice';
-import { Plus, Users, Clock, CheckCircle, Circle, PlayCircle, Settings, LogOut, BarChart2, ArrowLeft } from 'lucide-react';
+import { Plus, Users, Clock, CheckCircle, Circle, PlayCircle, Settings, LogOut, BarChart2, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import CreateTaskModal from '../components/CreateTaskModal';
 import GenerateInviteModal from '../components/GenerateInviteModal';
 import ActivityTimeline from '../components/ActivityTimeline';
@@ -11,6 +11,8 @@ import TaskDetailsModal from '../components/TaskDetailsModal';
 import ManageAccessModal from '../components/ManageAccessModal';
 import { removeProjectMemberAPI, deleteTaskAPI } from '../services/api';
 import { useNavigate, Link } from 'react-router-dom';
+
+const TASKS_PER_PAGE = 30;
 
 const statusIcons = {
   PENDING: <Circle size={16} className="text-slate-400" />,
@@ -31,16 +33,18 @@ const ProjectBoard = () => {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isManageAccessOpen, setIsManageAccessOpen] = useState(false);
   const [viewingTask, setViewingTask] = useState(null);
+  const [page, setPage] = useState(1);
   const navigate = useNavigate();
 
+  const { pagination } = useSelector(state => state.tasks);
   const project = projects.find(p => p.id === projectId);
 
   useEffect(() => {
-    dispatch(fetchProjectTasks(projectId));
+    dispatch(fetchProjectTasks({ projectId, page, limit: TASKS_PER_PAGE }));
     if (projects.length === 0) {
       dispatch(fetchProjects());
     }
-  }, [dispatch, projectId, projects.length]);
+  }, [dispatch, projectId, page, projects.length]);
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -171,9 +175,9 @@ const ProjectBoard = () => {
                           onClick={() => setViewingTask(task)}
                           className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-primary transition-all cursor-pointer relative group"
                         >
-                          {task.sticky_notes?.length > 0 && (
+                          {task._count?.sticky_notes > 0 && (
                             <div className="absolute -top-2 -left-2 bg-amber-400 text-amber-900 text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
-                              {task.sticky_notes.length}
+                              {task._count.sticky_notes}
                             </div>
                           )}
                           <div className={`absolute top-1 right-1 rounded-tr-lg w-3 h-3 ${task.priority === 1 ? 'bg-red-500/70' : task.priority === 2 ? 'bg-yellow-500/70' : 'bg-green-500/70'}`} />
@@ -199,6 +203,31 @@ const ProjectBoard = () => {
               })}
             </div>
           </div>
+
+          {/* Pagination Controls */}
+          {pagination.totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 mt-6">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronLeft size={16} /> Prev
+              </button>
+              <span className="text-sm font-medium text-slate-500">
+                Page {page} of {pagination.totalPages}
+                <span className="ml-2 text-slate-400">({pagination.total} tasks)</span>
+              </span>
+              <button
+                onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
+                disabled={!pagination.hasNextPage}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-semibold bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                Next <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
+
           <div className="w-full xl:w-[320px] shrink-0 h-[400px] xl:h-[calc(100vh-200px)] xl:sticky xl:top-6">
             <ActivityTimeline projectId={projectId} />
           </div>

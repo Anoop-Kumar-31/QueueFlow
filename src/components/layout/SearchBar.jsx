@@ -11,7 +11,7 @@ const SearchBar = () => {
   const navigate = useNavigate();
 
   const { items: projects } = useSelector((s) => s.projects);
-  const { items: tasks }    = useSelector((s) => s.tasks);
+  const { items: tasks } = useSelector((s) => s.tasks);
 
   useEffect(() => {
     const handler = (e) => {
@@ -58,6 +58,8 @@ const SearchBar = () => {
         <input
           ref={inputRef}
           type="text"
+          id="search-bar"
+          autoComplete="off"
           placeholder="Search projects & tasks..."
           value={query}
           onChange={e => { setQuery(e.target.value); setOpen(true); }}
