@@ -9,6 +9,7 @@
   --color-primary-hover: #5B3AE8;
   --font-sans: 'Outfit', sans-serif;
 }
+
 @layer base {
   :root {
     --tooltip-bg: #ffffff;

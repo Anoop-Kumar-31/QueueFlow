@@ -45,7 +45,7 @@ const Dashboard = () => {
       {loading && projects.length === 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 blur-[1px]">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 flex flex-col h-[220px]">
+            <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 flex flex-col h-55">
               {/* Title and Badge Skeleton */}
               <div className="flex items-center justify-between mb-4">
                 <div className="h-6 w-32 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
@@ -112,7 +112,7 @@ const Dashboard = () => {
                   {project.description || 'No description provided.'}
                 </p>
                 <p className="text-slate-500/70 dark:text-slate-500/70 mb-2 flex-1 line-clamp-2 text-xs">
-                  <b>Created by:</b> {project.creatorName}
+                  <b>Created by:</b> {project.creatorName || 'You'}
                 </p>
 
                 <div className="h-px bg-slate-200 dark:bg-slate-800 -mx-6 mb-4" />
@@ -120,9 +120,9 @@ const Dashboard = () => {
                 <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
                   <div className="flex items-center gap-1 overflow-x-scroll">
                     <Users size={16} /> Team:
-                    {project.members.map(member => (
-                      <span key={member.id} className="h-6 w-6 flex items-center justify-center rounded-full text-[10px] font-semibold bg-primary/20 text-primary border border-primary shrink-0" title={member.user.name}>
-                        {member.user.name.charAt(0).toUpperCase() + member.user.name.split(' ').pop().charAt(0).toUpperCase()}
+                    {(project.members || []).map(member => (
+                      <span key={member.id} className="h-6 w-6 flex items-center justify-center rounded-full text-[10px] font-semibold bg-primary/20 text-primary border border-primary shrink-0" title={member.user?.name || 'User'}>
+                        {(member.user?.name || 'User').charAt(0).toUpperCase() + (member.user?.name || 'User').split(' ').pop().charAt(0).toUpperCase()}
                       </span>
                     ))}
                   </div>

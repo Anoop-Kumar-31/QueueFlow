@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { X, UserRoundMinus, ShieldAlert } from 'lucide-react';
 import { fetchProjectMembersAPI, removeProjectMemberAPI } from '../services/api';
 import { useSelector } from 'react-redux';
@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 const ManageAccessModal = ({ isOpen, onClose, projectId }) => {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isRemoving, startRemoveTransition] = useTransition();
   const { user } = useSelector(state => state.auth);
 
   const loadMembers = () => {
@@ -24,13 +25,15 @@ const ManageAccessModal = ({ isOpen, onClose, projectId }) => {
 
   const handleRemove = async (userId, name) => {
     if (window.confirm(`Are you sure you want to remove ${name} from this workspace?`)) {
-      try {
-        await removeProjectMemberAPI(projectId, userId);
-        loadMembers();
-      } catch (err) {
-        console.error(err);
-        alert('Failed to remove member');
-      }
+      startRemoveTransition(async () => {
+        try {
+          await removeProjectMemberAPI(projectId, userId);
+          loadMembers();
+        } catch (err) {
+          console.error(err);
+          alert('Failed to remove member');
+        }
+      });
     }
   };
 
@@ -59,7 +62,7 @@ const ManageAccessModal = ({ isOpen, onClose, projectId }) => {
                   <p className="text-xs text-slate-500 mt-1 uppercase font-semibold tracking-wider">{member.role} • {member.user.email}</p>
                 </div>
                 {member.user.id !== user.id && (
-                  <button onClick={() => handleRemove(member.user.id, member.user.name)} className="text-red-500 hover:bg-red-500/10 p-2.5 rounded-lg transition-colors border border-transparent hover:border-red-500/20" title="Remove Member">
+                  <button disabled={isRemoving} onClick={() => handleRemove(member.user.id, member.user.name)} className="text-red-500 hover:bg-red-500/10 p-2.5 rounded-lg transition-colors border border-transparent hover:border-red-500/20 disabled:opacity-40 disabled:cursor-not-allowed" title="Remove Member">
                     <UserRoundMinus size={18} />
                   </button>
                 )}

@@ -1,3 +1,4 @@
+import { useActionState } from 'react';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -57,27 +58,19 @@ const Profile = () => {
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.auth);
 
-  // ── Profile info state ──
+  // ── Profile info controlled state ──
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
-  const [profileLoading, setProfileLoading] = useState(false);
-  const [profileMsg, setProfileMsg] = useState(null); // { type, message }
 
   // ── Password section state ──
-  // Step 1: verify old password
   const [oldPassword, setOldPassword] = useState('');
   const [showOld, setShowOld] = useState(false);
-  const [verifying, setVerifying] = useState(false);
-  const [verified, setVerified] = useState(false); // gates step 2
+  const [verified, setVerified] = useState(false);
 
-  // Step 2: new password
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [pwdLoading, setPwdLoading] = useState(false);
-  const [verifyMsg, setVerifyMsg] = useState(null);   // banner under Step 1
-  const [newPwdMsg, setNewPwdMsg] = useState(null);   // banner under Step 2
 
   // ── Initials helper ──
   const initials = user?.name
@@ -89,85 +82,62 @@ const Profile = () => {
     })()
     : 'U';
 
-  // ── Handlers ──────────────────────────────────────────────────
-  const handleProfileSave = async (e) => {
-    e.preventDefault();
-    setProfileLoading(true);
-    setProfileMsg(null);
-    // check if name or email is changed
+  // ── Action: Save Profile Info ──────────────────────────────────
+  const [profileState, profileAction, profilePending] = useActionState(async (prevState) => {
     if (name === user?.name && email === user?.email) {
-      setProfileMsg({ type: 'alert', message: 'No changes to update.' });
-      setProfileLoading(false);
-      return;
+      return { type: 'alert', message: 'No changes to update.' };
     }
     try {
       const res = await updateProfileAPI({ name, email });
       dispatch(updateUser(res.data));
-      setProfileMsg({ type: 'success', message: 'Profile updated successfully!' });
+      return { type: 'success', message: 'Profile updated successfully!' };
     } catch (err) {
-      setProfileMsg({ type: 'error', message: err.message });
-    } finally {
-      setProfileLoading(false);
+      return { type: 'error', message: err.message };
     }
-  };
+  }, null);
 
-  const handleVerifyOldPassword = async () => {
-    if (!oldPassword) return;
-    setVerifying(true);
-    setVerifyMsg(null);
+  // ── Action: Verify Old Password ──────────────────────────────────
+  const [verifyState, verifyAction, verifyPending] = useActionState(async (prevState) => {
+    if (!oldPassword) return { type: 'alert', message: 'Please enter your current password.' };
     try {
-      const res = await verifyPasswordAPI(oldPassword);
-      console.log(res);
+      await verifyPasswordAPI(oldPassword);
       setVerified(true);
-      setVerifyMsg({ type: 'success', message: 'Password confirmed — set your new password below.' });
+      return { type: 'success', message: 'Password confirmed — set your new password below.' };
     } catch (err) {
       setVerified(false);
-      setVerifyMsg({ type: 'alert', message: err.message });
-    } finally {
-      setVerifying(false);
+      return { type: 'alert', message: err.message };
     }
-  };
+  }, null);
 
-  const handleChangePassword = async (e) => {
-    e.preventDefault();
+  // ── Action: Change Password ──────────────────────────────────────
+  const [changePwdState, changePwdAction, changePwdPending] = useActionState(async (prevState) => {
     if (newPassword !== confirmPassword) {
-      setNewPwdMsg({ type: 'alert', message: 'New passwords do not match.' });
-      return;
+      return { type: 'alert', message: 'New passwords do not match.' };
     }
     if (newPassword.length < 6) {
-      setNewPwdMsg({ type: 'alert', message: 'Password must be at least 6 characters.' });
-      return;
+      return { type: 'alert', message: 'Password must be at least 6 characters.' };
     }
     if (newPassword === oldPassword) {
-      setNewPwdMsg({ type: 'alert', message: 'New password cannot be same as old password.' });
-      return;
+      return { type: 'alert', message: 'New password cannot be same as old password.' };
     }
-    setPwdLoading(true);
-    setNewPwdMsg(null);
     try {
       await changePasswordAPI({ oldPassword, newPassword });
-      setNewPwdMsg({ type: 'success', message: 'Password changed successfully!' });
       // Reset everything
       setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
       setVerified(false);
-      setVerifyMsg(null);
-      setNewPwdMsg(null);
+      return { type: 'success', message: 'Password changed successfully!' };
     } catch (err) {
-      setNewPwdMsg({ type: 'error', message: err.message });
-    } finally {
-      setPwdLoading(false);
+      return { type: 'error', message: err.message };
     }
-  };
+  }, null);
 
   const resetPasswordSection = () => {
     setOldPassword('');
     setNewPassword('');
     setConfirmPassword('');
     setVerified(false);
-    setVerifyMsg(null);
-    setNewPwdMsg(null);
   };
 
   return (
@@ -192,10 +162,10 @@ const Profile = () => {
           </div>
         </div>
       </div>
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6">
 
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6">
         {/* Edit form */}
-        <form onSubmit={handleProfileSave} className="space-y-4">
+        <form action={profileAction} className="space-y-4">
           <div className="flex items-center gap-2 mb-2">
             <Pencil size={14} className="text-primary" />
             <span className="font-bold text-slate-900 dark:text-white text-base">Edit Info</span>
@@ -217,15 +187,15 @@ const Profile = () => {
             placeholder="you@example.com"
           />
 
-          <Banner {...(profileMsg || {})} />
+          <Banner {...(profileState || {})} />
 
           <button
             type="submit"
-            disabled={profileLoading || (!name && !email)}
+            disabled={profilePending || (!name && !email)}
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-sm bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
           >
-            {profileLoading ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
-            {profileLoading ? 'Saving…' : 'Save Changes'}
+            {profilePending ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />}
+            {profilePending ? 'Saving…' : 'Save Changes'}
           </button>
         </form>
       </div>
@@ -263,19 +233,20 @@ const Profile = () => {
           />
 
           {!verified && (
-            <button
-              type="button"
-              onClick={handleVerifyOldPassword}
-              disabled={!oldPassword || verifying}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {verifying ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
-              {verifying ? 'Verifying…' : 'Verify Password'}
-            </button>
+            <form action={verifyAction}>
+              <button
+                type="submit"
+                disabled={!oldPassword || verifyPending}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {verifyPending ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
+                {verifyPending ? 'Verifying…' : 'Verify Password'}
+              </button>
+            </form>
           )}
 
           {/* Banner for Step 1 only */}
-          <Banner {...(verifyMsg || {})} />
+          <Banner {...(verifyState || {})} />
         </div>
 
         {/* Step 2 — set new password (gated) */}
@@ -287,7 +258,7 @@ const Profile = () => {
             <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">Set new password</span>
           </div>
 
-          <form onSubmit={handleChangePassword} className="space-y-3">
+          <form action={changePwdAction} className="space-y-3">
             <Field
               label="New Password"
               icon={Lock}
@@ -320,11 +291,11 @@ const Profile = () => {
             <div className="flex items-center gap-3 pt-1">
               <button
                 type="submit"
-                disabled={!verified || !newPassword || !confirmPassword || pwdLoading}
+                disabled={!verified || !newPassword || !confirmPassword || changePwdPending}
                 className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl font-semibold text-sm bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {pwdLoading ? <Loader2 size={14} className="animate-spin" /> : <KeyRound size={14} />}
-                {pwdLoading ? 'Updating…' : 'Update Password'}
+                {changePwdPending ? <Loader2 size={14} className="animate-spin" /> : <KeyRound size={14} />}
+                {changePwdPending ? 'Updating…' : 'Update Password'}
               </button>
               {verified && (
                 <button
@@ -338,7 +309,7 @@ const Profile = () => {
             </div>
 
             {/* Banner for Step 2 only */}
-            <Banner {...(newPwdMsg || {})} />
+            <Banner {...(changePwdState || {})} />
           </form>
         </div>
       </div>

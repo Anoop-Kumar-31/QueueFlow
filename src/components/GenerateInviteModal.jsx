@@ -1,34 +1,25 @@
+import { useActionState } from 'react';
 import { useState } from 'react';
 import { X, Copy, CheckCircle } from 'lucide-react';
 import { generateInviteCodeAPI } from '../services/api';
 
 const GenerateInviteModal = ({ isOpen, onClose, projectId }) => {
   const [expiresInHours, setExpiresInHours] = useState('1');
-  const [loading, setLoading] = useState(false);
   const [inviteCode, setInviteCode] = useState(null);
   const [copied, setCopied] = useState(false);
-  const [error, setError] = useState(null);
 
-  if (!isOpen) return null;
-
-  const handleGenerate = async () => {
-    setLoading(true);
-    setError(null);
+  const [formState, formAction, isPending] = useActionState(async (prevState) => {
     try {
       const res = await generateInviteCodeAPI(projectId, expiresInHours);
-      console.log(res);
       if (res.success) {
         setInviteCode(res.data.code);
-      } else {
-        setError(res.message);
+        return { error: null };
       }
+      return { error: res.message };
     } catch (err) {
-      console.log(err)
-      setError('Failed to generate invite code');
-    } finally {
-      setLoading(false);
+      return { error: 'Failed to generate invite code' };
     }
-  };
+  }, { error: null });
 
   const handleCopy = () => {
     navigator.clipboard.writeText(inviteCode);
@@ -39,9 +30,10 @@ const GenerateInviteModal = ({ isOpen, onClose, projectId }) => {
   const handleClose = () => {
     setInviteCode(null);
     setCopied(false);
-    setError(null);
     onClose();
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50 backdrop-blur-sm p-4">
@@ -51,10 +43,10 @@ const GenerateInviteModal = ({ isOpen, onClose, projectId }) => {
         </button>
         <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Generate Invite Code</h2>
 
-        {error && <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm">{error}</div>}
+        {formState.error && <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm">{formState.error}</div>}
 
         {!inviteCode ? (
-          <div className="space-y-4">
+          <form action={formAction} className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-slate-900 dark:text-white mb-2">Code Expiration</label>
               <select
@@ -66,10 +58,14 @@ const GenerateInviteModal = ({ isOpen, onClose, projectId }) => {
                 <option value="6">6 Hours</option>
               </select>
             </div>
-            <button onClick={handleGenerate} className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 mt-4 rounded-lg font-semibold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30" disabled={loading}>
-              {loading ? 'Generating...' : 'Generate Code'}
+            <button
+              type="submit"
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 mt-4 rounded-lg font-semibold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 disabled:opacity-60 disabled:cursor-not-allowed"
+              disabled={isPending}
+            >
+              {isPending ? 'Generating...' : 'Generate Code'}
             </button>
-          </div>
+          </form>
         ) : (
           <div className="space-y-6 text-center">
             <p className="text-slate-500 dark:text-slate-400">Share this code with your team members to grant them access to this project.</p>

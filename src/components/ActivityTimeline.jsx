@@ -75,7 +75,7 @@ const ActivityTimeline = ({ projectId }) => {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden flex flex-col h-full max-h-[800px] shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden flex flex-col h-[80%] max-h-200 shadow-sm">
         <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 bg-slate-50 dark:bg-slate-900/50">
           <Clock size={16} className="text-slate-500" />
           <h3 className="font-semibold text-slate-900 dark:text-white">Activity Log</h3>
@@ -96,7 +96,7 @@ const ActivityTimeline = ({ projectId }) => {
   }
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden flex flex-col h-full max-h-[800px] shadow-sm">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden flex flex-col h-full max-h-200 shadow-sm">
       <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/50">
         <div className="flex items-center gap-2">
           <Clock size={16} className="text-slate-500" />

@@ -1,3 +1,4 @@
+import { useActionState } from 'react';
 import { useState } from 'react';
 import { X, Key } from 'lucide-react';
 import { joinProjectAPI } from '../services/api';
@@ -8,35 +9,26 @@ import { useNavigate } from 'react-router-dom';
 const JoinProjectModal = ({ isOpen, onClose }) => {
   const [code, setCode] = useState('');
   const [role, setRole] = useState('developer');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  if (!isOpen) return null;
-
-  const handleJoin = async (e) => {
-    e.preventDefault();
-    if (!code.trim()) return;
-
-    setLoading(true);
-    setError(null);
+  const [formState, formAction, isPending] = useActionState(async (prevState) => {
+    if (!code.trim()) return { error: 'Please enter a valid invite code.' };
     try {
       const res = await joinProjectAPI(code.trim().toUpperCase(), role.toUpperCase());
       if (res.success) {
         dispatch(fetchProjects());
         onClose();
         navigate(`/project/${res.data.id}`);
-      } else {
-        setError(res.message);
+        return { error: null };
       }
+      return { error: res.message };
     } catch (err) {
-      setError('Failed to join project. Verify your code and try again.');
-    } finally {
-      setLoading(false);
+      return { error: 'Failed to join project. Verify your code and try again.' };
     }
-  };
+  }, { error: null });
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50 backdrop-blur-sm p-4">
@@ -52,9 +44,9 @@ const JoinProjectModal = ({ isOpen, onClose }) => {
         <h2 className="text-2xl font-bold text-center text-slate-900 dark:text-white mb-2">Join Project</h2>
         <p className="text-slate-500 dark:text-slate-400 text-center text-sm mb-6">Enter the 6-character invite code provided by your Project Manager.</p>
 
-        {error && <div className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm">{error}</div>}
+        {formState.error && <div className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm">{formState.error}</div>}
 
-        <form onSubmit={handleJoin} className="space-y-4">
+        <form action={formAction} className="space-y-4">
           <div>
             <input
               type="text"
@@ -84,8 +76,12 @@ const JoinProjectModal = ({ isOpen, onClose }) => {
               ))}
             </div>
           </div>
-          <button type="submit" className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 mt-4 rounded-lg font-semibold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 transition-all font-sans" disabled={loading || code.length < 6}>
-            {loading ? 'Verifying...' : 'Join Workspace'}
+          <button
+            type="submit"
+            className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 mt-4 rounded-lg font-semibold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed font-sans"
+            disabled={isPending || code.length < 6}
+          >
+            {isPending ? 'Verifying...' : 'Join Workspace'}
           </button>
         </form>
       </div>
